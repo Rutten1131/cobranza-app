@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  user
+}
+
+enum RecordStatus {
+  pending
+  paid
+  overdue
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  role          Role      @default(user)
+  businessName  String?   @map("business_name")
+  businessType  String?   @map("business_type")
+  whatsappSender String?  @map("whatsapp_sender")
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  clients Client[]
+  records Record[]
+
+  @@map("users")
+}
+
+model Client {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  name      String
+  phone     String
+  notes     String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  records Record[]
+
+  @@map("clients")
+}
+
+model Record {
+  id           String       @id @default(uuid())
+  userId       String       @map("user_id")
+  clientId     String       @map("client_id")
+  description  String
+  amount       Decimal?     @db.Decimal(10,2)
+  dueDate      DateTime     @map("due_date")
+  issueDate    DateTime     @default(now()) @map("issue_date")
+  status       RecordStatus @default(pending)
+  reminderSent Boolean      @default(false) @map("reminder_sent")
+  createdAt    DateTime     @default(now()) @map("created_at")
+
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  client            Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  logs             MessageLog[]
+  reminderSchedule ReminderSchedule[]
+
+  @@map("records")
+}
+
+model ReminderSchedule {
+  id              String   @id @default(uuid())
+  recordId        String   @map("record_id")
+  scheduledDate   DateTime @map("scheduled_date") @db.Date
+  sentAt          DateTime? @map("sent_at")
+  status          String   @default("pending") // pending, sent, failed
+  reminderNumber  Int      @map("reminder_number") // 1, 2, 3, 4
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  @@map("reminder_schedules")
+}
+
+model MessageLog {
+  id          String   @id @default(uuid())
+  recordId    String   @map("record_id")
+  sentAt      DateTime @default(now()) @map("sent_at")
+  messageText String?  @map("message_text")
+  status      String
+
+  record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
+
+  @@map("message_logs")
+}
