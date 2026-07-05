@@ -12,6 +12,7 @@ interface RecordCardProps {
   onRemind?: () => void;
   onMarkPaid?: () => void;
   onView?: () => void;
+  onDelete?: () => void;
   loading?: boolean;
   className?: string;
 }
@@ -25,9 +26,12 @@ export function RecordCard({
   onRemind,
   onMarkPaid,
   onView,
+  onDelete,
+  onPause,
+  onAdjustTime,
   loading,
   className,
-}: RecordCardProps) {
+}: RecordCardProps & { onPause?: () => void; onAdjustTime?: () => void }) {
   const overdue = isOverdue(dueDate);
   const today = isDueToday(dueDate);
 
@@ -86,6 +90,36 @@ export function RecordCard({
         {onView && (
           <Button variant="ghost" size="sm" onClick={onView}>
             Ver
+          </Button>
+        )}
+        
+        {/* Pause and Time Adjust Quick Actions */}
+        {status !== "paid" && onPause && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onPause}
+            title="Pausar y aplazar avisos"
+            className="hover:bg-primary/5 text-primary"
+          >
+            ⏸️ Pausar
+          </Button>
+        )}
+        {status !== "paid" && onAdjustTime && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onAdjustTime}
+            title="Ajustar hora de envío"
+            className="hover:bg-warning/5 text-warning"
+          >
+            🕒 Hora
+          </Button>
+        )}
+
+        {onDelete && (
+          <Button variant="ghost" size="sm" onClick={onDelete} className="text-danger hover:bg-danger/10 ml-auto">
+            🗑️
           </Button>
         )}
       </div>

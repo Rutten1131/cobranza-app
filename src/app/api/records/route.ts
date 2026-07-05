@@ -26,6 +26,9 @@ export async function GET(req: NextRequest) {
         client: {
           select: { id: true, name: true, phone: true },
         },
+        reminderSchedule: {
+          orderBy: { scheduledDate: "asc" },
+        },
       },
       orderBy: { dueDate: "asc" },
     });
@@ -75,7 +78,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { clientId, description, amount, dueDate, issueDate } = result.data;
+    const { clientId, description, amount, dueDate, issueDate, reminderDates, customMessage, inventoryItemId } = body;
 
     // Verify client belongs to user
     const client = await prisma.client.findFirst({
@@ -89,30 +92,84 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const record = await prisma.record.create({
-      data: {
-        userId: auth.userId,
-        clientId,
-        description,
-        amount: amount ? amount : null,
-        dueDate: new Date(dueDate),
-        issueDate: new Date(issueDate),
-        status: "pending",
-        reminderSchedule: {
-          create: [
-            { scheduledDate: new Date(dueDate), reminderNumber: 1, status: "pending" },
-            { scheduledDate: addDays(new Date(dueDate), 2), reminderNumber: 2, status: "pending" },
-            { scheduledDate: addDays(new Date(dueDate), 4), reminderNumber: 3, status: "pending" },
-            { scheduledDate: addDays(new Date(dueDate), 6), reminderNumber: 4, status: "pending" },
-          ],
+    // Verify inventory stock if inventoryItemId is provided
+    if (inventoryItemId) {
+      const invItem = await prisma.inventoryItem.findFirst({
+        where: { id: inventoryItemId, userId: auth.userId },
+      });
+
+      if (!invItem) {
+        return NextResponse.json({ error: "Artículo de inventario no encontrado" }, { status: 404 });
+      }
+
+      if (invItem.availableStock <= 0) {
+        return NextResponse.json({ error: "No queda stock disponible de este producto en el inventario" }, { status: 400 });
+      }
+    }
+
+    // Determinar las fechas programadas finales
+    let finalReminderDates: string[] = [];
+    if (reminderDates && reminderDates.length > 0) {
+      // Usar las personalizadas enviadas por el usuario, ordenadas de menor a mayor
+      finalReminderDates = [...reminderDates].sort();
+    } else {
+      // Caer en la opción por defecto: 5 días consecutivos a partir de la fecha de vencimiento/primer aviso
+      const start = new Date(dueDate);
+      for (let i = 0; i < 5; i++) {
+        const d = new Date(start);
+        d.setDate(start.getDate() + i);
+        finalReminderDates.push(d.toISOString().split("T")[0]);
+      }
+    }
+
+    // La fecha de vencimiento/límite de la deuda pasa a ser el último aviso del cronograma
+    const finalDueDate = finalReminderDates.length > 0 
+      ? new Date(finalReminderDates[finalReminderDates.length - 1]) 
+      : new Date(dueDate);
+
+    // Crear la programación
+    const reminderCreateData = finalReminderDates.map((dateStr, idx) => ({
+      scheduledDate: new Date(dateStr),
+      reminderNumber: idx + 1,
+      status: "pending",
+    }));
+
+    // Perform database operations in transaction
+    const record = await prisma.$transaction(async (tx) => {
+      // Reduce availableStock if linked
+      if (inventoryItemId) {
+        await tx.inventoryItem.update({
+          where: { id: inventoryItemId },
+          data: {
+            availableStock: {
+              decrement: 1,
+            },
+          },
+        });
+      }
+
+      return await tx.record.create({
+        data: {
+          userId: auth.userId,
+          clientId,
+          description,
+          amount: amount ? parseFloat(amount) : null,
+          dueDate: finalDueDate,
+          issueDate: new Date(issueDate),
+          status: "pending",
+          customMessage: customMessage || null,
+          inventoryItemId: inventoryItemId || null,
+          reminderSchedule: {
+            create: reminderCreateData,
+          },
         },
-      },
-      include: {
-        client: {
-          select: { id: true, name: true, phone: true },
+        include: {
+          client: {
+            select: { id: true, name: true, phone: true },
+          },
+          reminderSchedule: true,
         },
-        reminderSchedule: true,
-      },
+      });
     });
 
     return NextResponse.json({ record }, { status: 201 });

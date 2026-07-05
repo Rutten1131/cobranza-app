@@ -8,6 +8,11 @@ interface User {
   email: string;
   role: "admin" | "user";
   businessName?: string;
+  defaultReminderDays?: number;
+  defaultReminderTime?: string;
+  defaultReminderMessage?: string;
+  hasCobranzas?: boolean;
+  hasHabitaciones?: boolean;
 }
 
 export function useAuth() {

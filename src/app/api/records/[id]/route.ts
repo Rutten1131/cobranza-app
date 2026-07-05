@@ -23,6 +23,9 @@ export async function GET(
         logs: {
           orderBy: { sentAt: "desc" },
         },
+        reminderSchedule: {
+          orderBy: { scheduledDate: "asc" },
+        },
       },
     });
 
@@ -56,7 +59,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { description, amount, dueDate, status } = body;
+    const { description, amount, dueDate, status, reminderDates, reminderSchedule, customMessage } = body;
 
     const record = await prisma.record.findFirst({
       where: { id, userId: auth.userId },
@@ -69,17 +72,110 @@ export async function PATCH(
       );
     }
 
+    let finalDueDate = dueDate ? new Date(dueDate) : undefined;
+
+    // Support updating detailed reminderSchedule (granularity)
+    if (reminderSchedule && Array.isArray(reminderSchedule)) {
+      // 1. Obtener la programación actual antes de borrarla
+      const currentSchedule = await prisma.reminderSchedule.findMany({
+        where: { recordId: id },
+      });
+
+      // 2. Borrar programación existente
+      await prisma.reminderSchedule.deleteMany({
+        where: { recordId: id },
+      });
+
+      // Ordenar las fechas programadas
+      const sortedSchedule = [...reminderSchedule].sort(
+        (a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()
+      );
+
+      if (sortedSchedule.length > 0) {
+        finalDueDate = new Date(sortedSchedule[sortedSchedule.length - 1].scheduledDate);
+      }
+
+      // Crear nueva programación heredando estados originales si la fecha coincide
+      const reminderCreateData = sortedSchedule.map((item, idx) => {
+        const itemDate = new Date(item.scheduledDate);
+        // Buscar si ya existía un aviso para esta misma fecha y hora exacta
+        const match = currentSchedule.find(
+          (c) => new Date(c.scheduledDate).getTime() === itemDate.getTime()
+        );
+
+        return {
+          scheduledDate: itemDate,
+          reminderNumber: idx + 1,
+          status: match ? match.status : (item.status || "pending"),
+          sentAt: match ? match.sentAt : null,
+        };
+      });
+
+      await prisma.record.update({
+        where: { id },
+        data: {
+          reminderSchedule: {
+            create: reminderCreateData,
+          },
+        },
+      });
+    } else if (reminderDates && Array.isArray(reminderDates)) {
+      // Borrar programación existente
+      await prisma.reminderSchedule.deleteMany({
+        where: { recordId: id },
+      });
+
+      // Ordenar las fechas
+      const sortedDates = [...reminderDates].sort();
+      
+      if (sortedDates.length > 0) {
+        finalDueDate = new Date(sortedDates[sortedDates.length - 1]);
+      }
+
+      // Crear nueva programación
+      const reminderCreateData = sortedDates.map((dateStr, idx) => ({
+        scheduledDate: new Date(dateStr),
+        reminderNumber: idx + 1,
+        status: "pending",
+      }));
+
+      await prisma.record.update({
+        where: { id },
+        data: {
+          reminderSchedule: {
+            create: reminderCreateData,
+          },
+        },
+      });
+    }
+
+    // If status is changing to 'paid' and the record has an inventory item, restore stock
+    if (status === "paid" && record.status !== "paid" && record.inventoryItemId) {
+      await prisma.inventoryItem.update({
+        where: { id: record.inventoryItemId },
+        data: {
+          availableStock: {
+            increment: 1,
+          },
+        },
+      });
+    }
+
     const updated = await prisma.record.update({
       where: { id },
       data: {
         ...(description && { description }),
-        ...(amount !== undefined && { amount }),
-        ...(dueDate && { dueDate: new Date(dueDate) }),
+        ...(amount !== undefined && { amount: amount ? amount : null }),
+        ...(finalDueDate && { dueDate: finalDueDate }),
         ...(status && { status }),
+        customMessage: customMessage !== undefined ? customMessage : undefined,
       },
       include: {
         client: {
           select: { id: true, name: true, phone: true },
+        },
+        reminderSchedule: {
+          orderBy: { scheduledDate: "asc" },
         },
       },
     });
@@ -115,6 +211,22 @@ export async function DELETE(
         { error: "Registro no encontrado" },
         { status: 404 }
       );
+    }
+
+    // Si el registro NO estaba pagado y tenía artículo, devolvemos stock
+    if (record.status !== "paid" && record.inventoryItemId) {
+      try {
+        await prisma.inventoryItem.update({
+          where: { id: record.inventoryItemId },
+          data: {
+            availableStock: {
+              increment: 1,
+            },
+          },
+        });
+      } catch (e) {
+        console.error("Could not restore stock on delete:", e);
+      }
     }
 
     await prisma.record.delete({ where: { id } });

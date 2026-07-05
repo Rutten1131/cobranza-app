@@ -170,10 +170,6 @@ export function Calendar({ events, onDayClick, className }: CalendarProps) {
           <span className="w-3 h-3 rounded bg-primary/10 border border-primary" />
           <span className="text-small text-text-sub">Pendiente</span>
         </div>
-        <div className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded bg-accent/20 border border-accent" />
-          <span className="text-small text-text-sub">Pagado</span>
-        </div>
       </div>
     </div>
   );

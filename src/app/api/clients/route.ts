@@ -63,12 +63,14 @@ export async function POST(req: NextRequest) {
     }
 
     const { name, phone, notes } = result.data;
+    const { formatEcuadorPhone } = await import("@/lib/utils");
+    const formattedPhone = formatEcuadorPhone(phone);
 
     const client = await prisma.client.create({
       data: {
         userId: auth.userId,
         name,
-        phone,
+        phone: formattedPhone,
         notes: notes || null,
       },
     });

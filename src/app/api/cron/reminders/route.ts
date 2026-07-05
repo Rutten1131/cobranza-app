@@ -1,23 +1,28 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendWhatsAppMessage } from "@/lib/evolution";
 
 // This endpoint should be called by a cron job (e.g., every hour or every day at 9 AM)
 // Example: curl -X POST http://localhost:3000/api/cron/reminders
 
-export async function POST() {
-  try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+export async function GET() {
+  return handleCron();
+}
 
-    // Find pending reminders for today
+export async function POST() {
+  return handleCron();
+}
+
+async function handleCron() {
+  try {
+    const now = new Date();
+
+    // Find pending reminders scheduled for now or in the past
     const pendingReminders = await prisma.reminderSchedule.findMany({
       where: {
         status: "pending",
         scheduledDate: {
-          gte: today,
-          lt: tomorrow,
+          lte: now,
         },
       },
       include: {
@@ -25,7 +30,7 @@ export async function POST() {
           include: {
             client: true,
             user: {
-              select: { businessName: true, whatsappSender: true },
+              select: { businessName: true, whatsappSender: true, evolutionInstance: true, defaultReminderMessage: true },
             },
           },
         },
@@ -38,38 +43,64 @@ export async function POST() {
     for (const reminder of pendingReminders) {
       const { record, reminderNumber } = reminder;
       const businessName = record.user.businessName || "nuestro negocio";
+      const instanceName = record.user.evolutionInstance;
 
-      // Build message based on reminder number
+      if (!instanceName) {
+        console.error(`[WHATSAPP CRON] User has no evolutionInstance configured for reminder ${reminder.id}`);
+        await prisma.reminderSchedule.update({
+          where: { id: reminder.id },
+          data: { status: "failed" },
+        });
+        failedCount++;
+        continue;
+      }
+
+      // Build message based on reminder number or templates
       let message = "";
       const todayStr = new Date().toLocaleDateString("es-ES", {
         day: "numeric",
         month: "long",
       });
 
-      if (reminderNumber === 1) {
-        // First reminder - due date
-        message = `Hola ${record.client.name} 👋\n`;
-        message += `Te recordamos que el día de hoy (${todayStr}) debes devolver: ${record.description}.`;
-        if (record.amount) {
-          message += ` Monto: $${Number(record.amount).toFixed(2)}`;
-        }
-        message += `\n¡Gracias por confiar en ${businessName}!`;
+      const rawTemplate = record.customMessage || record.user.defaultReminderMessage;
+
+      if (rawTemplate) {
+        // Use custom message template with placeholders
+        message = rawTemplate
+          .replace(/{nombre}/g, record.client.name)
+          .replace(/{descripcion}/g, record.description)
+          .replace(/{monto}/g, record.amount ? `$${Number(record.amount).toFixed(2)}` : "")
+          .replace(/{negocio}/g, businessName)
+          .replace(/{fecha}/g, todayStr);
       } else {
-        // Follow-up reminders
-        const daysLate = (reminderNumber - 1) * 2;
-        message = `Hola ${record.client.name} 👋\n`;
-        message += `Te contactamos de ${businessName}.\n`;
-        message += `Tenemos pendiente la devolución de: ${record.description}.`;
-        if (record.amount) {
-          message += ` Monto: $${Number(record.amount).toFixed(2)}`;
+        if (reminderNumber === 1) {
+          // First reminder - due date
+          message = `Hola ${record.client.name} 👋\n`;
+          message += `Te recordamos que el día de hoy (${todayStr}) debes devolver: ${record.description}.`;
+          if (record.amount) {
+            message += ` Monto: $${Number(record.amount).toFixed(2)}`;
+          }
+          message += `\n¡Gracias por confiar en ${businessName}!`;
+        } else {
+          // Follow-up reminders
+          message = `Hola ${record.client.name} 👋\n`;
+          message += `Te contactamos de ${businessName}.\n`;
+          message += `Tenemos pendiente la devolución de: ${record.description}.`;
+          if (record.amount) {
+            message += ` Monto: $${Number(record.amount).toFixed(2)}`;
+          }
+          message += `\nPor favor comunícate con nosotros. Gracias 🙏`;
         }
-        message += `\nPor favor comunícate con nosotros. Gracias 🙏`;
       }
 
       try {
-        // In production, this would call Evolution API
-        // For now, we just log it
-        console.log(`[WHATSAPP] Reminder ${reminderNumber} to ${record.client.phone}:`, message);
+        console.log(`[WHATSAPP CRON] Sending reminder ${reminderNumber} to ${record.client.phone} using instance ${instanceName}`);
+        
+        const sendResult = await sendWhatsAppMessage(instanceName, record.client.phone, message);
+
+        if (!sendResult.success) {
+          throw new Error(sendResult.error || "Unknown error");
+        }
 
         // Log the message
         await prisma.messageLog.create({
@@ -96,6 +127,14 @@ export async function POST() {
         await prisma.reminderSchedule.update({
           where: { id: reminder.id },
           data: { status: "failed" },
+        });
+
+        await prisma.messageLog.create({
+          data: {
+            recordId: record.id,
+            messageText: message,
+            status: "failed",
+          },
         });
 
         failedCount++;

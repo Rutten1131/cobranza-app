@@ -14,7 +14,7 @@ export const createUserSchema = z.object({
 });
 
 export const createClientSchema = z.object({
-  name: z.string().min(2, "El nombre es requerido"),
+  name: z.string().min(2, "El nombre es requerido"), // Acepta nombres cortos sin forzar dos palabras
   phone: z.string().min(8, "El teléfono es requerido"),
   notes: z.string().optional(),
 });
@@ -26,6 +26,7 @@ export const createRecordSchema = z.object({
   dueDate: z.string().min(1, "La fecha de vencimiento es requerida"),
   issueDate: z.string().min(1, "La fecha de ingreso es requerida"),
   notes: z.string().optional(),
+  reminderDates: z.array(z.string()).optional(), // Array de fechas de avisos personalizadas
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

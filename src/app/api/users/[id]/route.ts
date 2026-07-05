@@ -24,6 +24,8 @@ export async function GET(
         businessType: true,
         whatsappSender: true,
         isActive: true,
+        hasCobranzas: true,
+        hasHabitaciones: true,
         createdAt: true,
         _count: {
           select: { records: true, clients: true },
@@ -58,14 +60,16 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { businessName, businessType, whatsappSender, isActive, password } = body;
+    const { businessName, businessType, whatsappSender, isActive, password, hasCobranzas, hasHabitaciones } = body;
 
-    const updateData: Record<string, unknown> = {};
+    const updateData: { [key: string]: any } = {};
 
     if (businessName !== undefined) updateData.businessName = businessName;
     if (businessType !== undefined) updateData.businessType = businessType;
     if (whatsappSender !== undefined) updateData.whatsappSender = whatsappSender;
     if (isActive !== undefined) updateData.isActive = isActive;
+    if (hasCobranzas !== undefined) updateData.hasCobranzas = Boolean(hasCobranzas);
+    if (hasHabitaciones !== undefined) updateData.hasHabitaciones = Boolean(hasHabitaciones);
     if (password) {
       updateData.passwordHash = await bcrypt.hash(password, 12);
     }
@@ -80,6 +84,8 @@ export async function PATCH(
         businessType: true,
         whatsappSender: true,
         isActive: true,
+        hasCobranzas: true,
+        hasHabitaciones: true,
       },
     });
 

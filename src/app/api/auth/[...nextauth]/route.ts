@@ -43,6 +43,8 @@ export async function POST(req: NextRequest) {
       email: user.email,
       role: user.role,
       businessName: user.businessName || undefined,
+      hasCobranzas: user.hasCobranzas,
+      hasHabitaciones: user.hasHabitaciones,
     });
 
     const response = NextResponse.json({
@@ -51,6 +53,8 @@ export async function POST(req: NextRequest) {
         email: user.email,
         role: user.role,
         businessName: user.businessName,
+        hasCobranzas: user.hasCobranzas,
+        hasHabitaciones: user.hasHabitaciones,
       },
     });
 
@@ -88,6 +92,11 @@ export async function GET(req: NextRequest) {
         role: true,
         businessName: true,
         businessType: true,
+        defaultReminderDays: true,
+        defaultReminderTime: true,
+        defaultReminderMessage: true,
+        hasCobranzas: true,
+        hasHabitaciones: true,
       },
     });
 

@@ -26,11 +26,22 @@ model User {
   businessName  String?   @map("business_name")
   businessType  String?   @map("business_type")
   whatsappSender String?  @map("whatsapp_sender")
+  evolutionInstance String? @map("evolution_instance")
+  evolutionToken   String? @map("evolution_token")
   isActive      Boolean   @default(true) @map("is_active")
   createdAt     DateTime  @default(now()) @map("created_at")
+  defaultReminderDays Int  @default(5) @map("default_reminder_days")
+  defaultReminderTime String @default("08:00") @map("default_reminder_time")
+  defaultReminderMessage String? @map("default_reminder_message")
+  hasCobranzas  Boolean   @default(true) @map("has_cobranzas")
+  hasHabitaciones Boolean   @default(false) @map("has_habitaciones")
 
   clients Client[]
   records Record[]
+  inventoryItems InventoryItem[]
+  hotelRooms HotelRoom[]
+  hotelReservations HotelReservation[]
+  hotelRoomTypes HotelRoomType[]
 
   @@map("users")
 }
@@ -59,23 +70,44 @@ model Record {
   issueDate    DateTime     @default(now()) @map("issue_date")
   status       RecordStatus @default(pending)
   reminderSent Boolean      @default(false) @map("reminder_sent")
+  customMessage String?     @db.Text @map("custom_message")
+  inventoryItemId String?   @map("inventory_item_id")
   createdAt    DateTime     @default(now()) @map("created_at")
 
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   client            Client            @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  inventoryItem     InventoryItem?    @relation(fields: [inventoryItemId], references: [id], onDelete: SetNull)
   logs             MessageLog[]
   reminderSchedule ReminderSchedule[]
 
   @@map("records")
 }
 
+model InventoryItem {
+  id             String   @id @default(uuid())
+  userId         String   @map("user_id")
+  name           String
+  description    String?  @db.Text
+  sku            String?
+  price          Decimal? @db.Decimal(10,2)
+  stock          Int      @default(1)
+  availableStock Int      @default(1) @map("available_stock")
+  customFields   Json?    @map("custom_fields")
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  records        Record[]
+
+  @@map("inventory_items")
+}
+
 model ReminderSchedule {
   id              String   @id @default(uuid())
   recordId        String   @map("record_id")
-  scheduledDate   DateTime @map("scheduled_date") @db.Date
+  scheduledDate   DateTime @map("scheduled_date") // Quitamos @db.Date para almacenar la hora completa
   sentAt          DateTime? @map("sent_at")
   status          String   @default("pending") // pending, sent, failed
-  reminderNumber  Int      @map("reminder_number") // 1, 2, 3, 4
+  reminderNumber  Int      @map("reminder_number") // 1, 2, 3, 4...
   createdAt       DateTime @default(now()) @map("created_at")
 
   record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
@@ -93,4 +125,52 @@ model MessageLog {
   record Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
 
   @@map("message_logs")
+}
+
+model HotelRoom {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  number    String
+  type      String
+  price     Float
+  status    String   @default("libre") // libre, ocupada, sucia
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reservations HotelReservation[]
+
+  @@unique([userId, number])
+  @@map("hotel_rooms")
+}
+
+model HotelReservation {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  roomId       String   @map("room_id")
+  guestName    String   @map("guest_name")
+  guestEmail   String?  @map("guest_email")
+  guestPhone   String   @map("guest_phone")
+  amount       Float
+  status       String   @default("pending") // pending, paid, cancelled
+  checkInDate  DateTime @map("check_in_date")
+  checkOutDate DateTime @map("check_out_date")
+  adults       Int      @default(2)
+  kids         Int      @default(0)
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  room HotelRoom @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
+  @@map("hotel_reservations")
+}
+
+model HotelRoomType {
+  id     String @id @default(uuid())
+  userId String @map("user_id")
+  name   String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, name])
+  @@map("hotel_room_types")
 }

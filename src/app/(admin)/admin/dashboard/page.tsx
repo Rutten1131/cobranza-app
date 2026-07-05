@@ -5,12 +5,31 @@ import { useRouter } from "next/navigation";
 import { Button, Input, Modal, showToast, EmptyState } from "@/components/ui";
 import { useAuth } from "@/components/providers";
 
+// Helper to generate username from business name
+const generateUsername = (businessName: string): string => {
+  if (!businessName) return "";
+  const clean = businessName.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 15);
+  return clean || "";
+};
+
+// Helper to generate random password
+const generatePassword = (): string => {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$";
+  let password = "";
+  for (let i = 0; i < 12; i++) {
+    password += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return password;
+};
+
 interface User {
   id: string;
   email: string;
   businessName: string | null;
   businessType: string | null;
   isActive: boolean;
+  hasCobranzas: boolean;
+  hasHabitaciones: boolean;
   createdAt: string;
   _count: {
     records: number;
@@ -41,7 +60,13 @@ export default function AdminDashboard() {
     businessName: "",
     businessType: "",
     whatsappSender: "",
+    hasCobranzas: true,
+    hasHabitaciones: false,
   });
+
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingUser, setEditingUser] = useState<any | null>(null);
+  const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
     if (!authLoading && user?.role !== "admin") {
@@ -93,6 +118,8 @@ export default function AdminDashboard() {
         businessName: "",
         businessType: "",
         whatsappSender: "",
+        hasCobranzas: true,
+        hasHabitaciones: false,
       });
       fetchUsers();
     } catch {
@@ -119,6 +146,40 @@ export default function AdminDashboard() {
       }
     } catch {
       showToast("Error al actualizar usuario", "error");
+    }
+  };
+
+  const handleEditUserSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    setUpdating(true);
+
+    try {
+      const res = await fetch(`/api/users/${editingUser.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          businessName: editingUser.businessName,
+          businessType: editingUser.businessType,
+          whatsappSender: editingUser.whatsappSender,
+          hasCobranzas: editingUser.hasCobranzas,
+          hasHabitaciones: editingUser.hasHabitaciones,
+        }),
+      });
+
+      if (res.ok) {
+        showToast("Configuración de usuario actualizada", "success");
+        setShowEditModal(false);
+        setEditingUser(null);
+        fetchUsers();
+      } else {
+        const data = await res.json();
+        showToast(data.error || "Error al actualizar configuración", "error");
+      }
+    } catch {
+      showToast("Error de conexión", "error");
+    } finally {
+      setUpdating(false);
     }
   };
 
@@ -207,24 +268,51 @@ export default function AdminDashboard() {
                       <p className="text-small text-text-muted font-mono">
                         {u._count.clients} clientes · {u._count.records} registros
                       </p>
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {u.hasCobranzas && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                          💰 Cobranzas
+                        </span>
+                      )}
+                      {u.hasHabitaciones && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-warning/10 text-warning border border-warning/20">
+                          🏨 Habitaciones
+                        </span>
+                      )}
+                      {!u.hasCobranzas && !u.hasHabitaciones && (
+                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-danger/10 text-danger border border-danger/20">
+                          Ninguno
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        u.isActive ? "bg-accent" : "bg-text-muted"
-                      }`}
-                    />
-                    <span className="text-small text-text-sub">
-                      {u.isActive ? "Activo" : "Inactivo"}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleToggleActive(u.id, u.isActive)}
-                    >
-                      {u.isActive ? "Desactivar" : "Activar"}
-                    </Button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      u.isActive ? "bg-accent" : "bg-text-muted"
+                    }`}
+                  />
+                  <span className="text-small text-text-sub">
+                    {u.isActive ? "Activo" : "Inactivo"}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setEditingUser({ ...u });
+                      setShowEditModal(true);
+                    }}
+                  >
+                    ✏️ Configurar
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleToggleActive(u.id, u.isActive)}
+                  >
+                    {u.isActive ? "Desactivar" : "Activar"}
+                  </Button>
                   </div>
                 </div>
               ))}
@@ -244,9 +332,13 @@ export default function AdminDashboard() {
             label="Nombre del negocio"
             placeholder="Trajes Don Luis"
             value={newUser.businessName}
-            onChange={(e) =>
-              setNewUser({ ...newUser, businessName: e.target.value })
-            }
+            onChange={(e) => {
+              setNewUser({ ...newUser, businessName: e.target.value });
+              // Auto-generate username from business name
+              if (!newUser.email || newUser.email === generateUsername(newUser.businessName)) {
+                setNewUser((prev) => ({ ...prev, email: generateUsername(e.target.value) }));
+              }
+            }}
             required
           />
 
@@ -271,27 +363,57 @@ export default function AdminDashboard() {
             </select>
           </div>
 
-          <Input
-            label="Usuario"
-            type="text"
-            placeholder="Cobranzas"
-            value={newUser.email}
-            onChange={(e) =>
-              setNewUser({ ...newUser, email: e.target.value })
-            }
-            required
-          />
+          <div>
+            <label className="block text-small font-medium text-text-main mb-1.5">
+              Usuario
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="usuario_negocio"
+                value={newUser.email}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, email: e.target.value })
+                }
+                className="flex-1 px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                required
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => setNewUser((prev) => ({ ...prev, email: generateUsername(prev.businessName) }))}
+              >
+                🔄
+              </Button>
+            </div>
+          </div>
 
-          <Input
-            label="Contraseña temporal"
-            type="password"
-            placeholder="••••••••"
-            value={newUser.password}
-            onChange={(e) =>
-              setNewUser({ ...newUser, password: e.target.value })
-            }
-            required
-          />
+          <div>
+            <label className="block text-small font-medium text-text-main mb-1.5">
+              Contraseña
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="Contraseña"
+                value={newUser.password}
+                onChange={(e) =>
+                  setNewUser({ ...newUser, password: e.target.value })
+                }
+                className="flex-1 px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                required
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => setNewUser((prev) => ({ ...prev, password: generatePassword() }))}
+              >
+                🔑
+              </Button>
+            </div>
+          </div>
 
           <Input
             label="WhatsApp del negocio (opcional)"
@@ -301,6 +423,30 @@ export default function AdminDashboard() {
               setNewUser({ ...newUser, whatsappSender: e.target.value })
             }
           />
+
+          <div className="space-y-2 border-t border-border pt-4">
+            <span className="text-small font-semibold text-text-main block">Sistemas Activos Asignados</span>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 text-small text-text-sub select-none cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={newUser.hasCobranzas}
+                  onChange={(e) => setNewUser({ ...newUser, hasCobranzas: e.target.checked })}
+                  className="rounded border-border text-primary focus:ring-primary w-4 h-4"
+                />
+                <span>💰 Sistema de Cobranzas</span>
+              </label>
+              <label className="flex items-center gap-2 text-small text-text-sub select-none cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={newUser.hasHabitaciones}
+                  onChange={(e) => setNewUser({ ...newUser, hasHabitaciones: e.target.checked })}
+                  className="rounded border-border text-primary focus:ring-primary w-4 h-4"
+                />
+                <span>🏨 Sistema de Habitaciones</span>
+              </label>
+            </div>
+          </div>
 
           <div className="flex justify-end gap-3 pt-4">
             <Button
@@ -315,6 +461,93 @@ export default function AdminDashboard() {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* Edit User Modal */}
+      <Modal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingUser(null);
+        }}
+        title="Configurar Sistemas de Usuario"
+      >
+        {editingUser && (
+          <form onSubmit={handleEditUserSubmit} className="space-y-4">
+            <Input
+              label="Nombre del negocio"
+              value={editingUser.businessName || ""}
+              onChange={(e) => setEditingUser({ ...editingUser, businessName: e.target.value })}
+              required
+            />
+
+            <div>
+              <label className="block text-small font-medium text-text-main mb-1.5">
+                Tipo de negocio
+              </label>
+              <select
+                className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                value={editingUser.businessType || ""}
+                onChange={(e) => setEditingUser({ ...editingUser, businessType: e.target.value })}
+                required
+              >
+                <option value="">Seleccionar tipo...</option>
+                {BUSINESS_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <Input
+              label="WhatsApp del negocio (opcional)"
+              placeholder="+5491112345678"
+              value={editingUser.whatsappSender || ""}
+              onChange={(e) => setEditingUser({ ...editingUser, whatsappSender: e.target.value })}
+            />
+
+            <div className="space-y-2 border-t border-border pt-4">
+              <span className="text-small font-semibold text-text-main block">Sistemas Activos Asignados</span>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 text-small text-text-sub select-none cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editingUser.hasCobranzas}
+                    onChange={(e) => setEditingUser({ ...editingUser, hasCobranzas: e.target.checked })}
+                    className="rounded border-border text-primary focus:ring-primary w-4 h-4"
+                  />
+                  <span>💰 Sistema de Cobranzas</span>
+                </label>
+                <label className="flex items-center gap-2 text-small text-text-sub select-none cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editingUser.hasHabitaciones}
+                    onChange={(e) => setEditingUser({ ...editingUser, hasHabitaciones: e.target.checked })}
+                    className="rounded border-border text-primary focus:ring-primary w-4 h-4"
+                  />
+                  <span>🏨 Sistema de Habitaciones</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-border">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditingUser(null);
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={updating}>
+                {updating ? "Guardando..." : "Guardar Cambios"}
+              </Button>
+            </div>
+          </form>
+        )}
       </Modal>
     </div>
   );
