@@ -174,3 +174,17 @@ model HotelRoomType {
   @@unique([userId, name])
   @@map("hotel_room_types")
 }
+
+model ValidationLead {
+  id              String   @id @default(uuid())
+  name            String
+  businessName    String   @map("business_name")
+  whatsapp        String
+  email           String
+  city            String
+  answers         Json     // Respuestas completas en formato JSON
+  score           Int      // Índice de automatización/riesgo calculado
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@map("validation_leads")
+}
