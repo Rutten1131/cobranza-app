@@ -128,11 +128,15 @@ export async function POST(req: NextRequest) {
       : new Date(dueDate);
 
     // Crear la programación
-    const reminderCreateData = finalReminderDates.map((dateStr, idx) => ({
-      scheduledDate: new Date(dateStr),
-      reminderNumber: idx + 1,
-      status: "pending",
-    }));
+    const now = new Date();
+    const reminderCreateData = finalReminderDates.map((dateStr, idx) => {
+      const schedDate = new Date(dateStr);
+      return {
+        scheduledDate: schedDate,
+        reminderNumber: idx + 1,
+        status: schedDate <= now ? "skipped" : "pending",
+      };
+    });
 
     // Perform database operations in transaction
     const record = await prisma.$transaction(async (tx) => {

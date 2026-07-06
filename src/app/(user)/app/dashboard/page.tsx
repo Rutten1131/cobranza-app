@@ -33,7 +33,7 @@ export default function UserDashboard() {
   const router = useRouter();
 
   // Navigation tab state
-  const [activeTab, setActiveTab] = useState<"dashboard" | "inventario" | "clientes">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "clientes">("dashboard");
 
   // General States
   const [records, setRecords] = useState<Record[]>([]);
@@ -302,6 +302,7 @@ export default function UserDashboard() {
 
   const [newReminderTime, setNewReminderTime] = useState("08:00");
   const [showConfig, setShowConfig] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<"avisos" | "whatsapp" | "inventario">("avisos");
   const [cfgDays, setCfgDays] = useState(5);
   const [cfgTime, setCfgTime] = useState("08:00");
   const [cfgMessage, setCfgMessage] = useState("");
@@ -1178,16 +1179,7 @@ export default function UserDashboard() {
             >
               📅 Calendario
             </button>
-            <button
-              onClick={() => setActiveTab("inventario")}
-              className={`flex-1 sm:flex-initial px-5 py-3.5 text-small font-semibold border-b-2 transition-all flex items-center justify-center gap-2 ${
-                activeTab === "inventario"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-text-sub hover:text-text-main"
-              }`}
-            >
-              📦 Inventario
-            </button>
+
             <button
               onClick={() => setActiveTab("clientes")}
               className={`flex-1 sm:flex-initial px-5 py-3.5 text-small font-semibold border-b-2 transition-all flex items-center justify-center gap-2 ${
@@ -1207,80 +1199,6 @@ export default function UserDashboard() {
         {/* ======================== TAB: DASHBOARD ======================== */}
         {activeTab === "dashboard" && (
           <>
-        {/* WhatsApp Status Card */}
-        <div className="bg-card rounded-md shadow-card border border-border p-5 mb-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-3xl">📱</span>
-              <div>
-                <h3 className="font-display font-semibold text-text-main text-lg">WhatsApp Web</h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className={`w-2.5 h-2.5 rounded-full ${whatsappStatus === "connected" ? "bg-accent" : whatsappStatus === "loading" ? "bg-warning animate-pulse" : "bg-danger"}`}></span>
-                  <span className="text-small font-medium text-text-muted capitalize">
-                    {whatsappStatus === "loading" ? "Procesando..." : whatsappStatus === "connected" ? "Conectado" : "Desconectado"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              {whatsappStatus === "connected" && (
-                <Button variant="danger" size="sm" onClick={handleWhatsAppDisconnect}>
-                  Desconectar Cuenta
-                </Button>
-              )}
-              {whatsappStatus !== "connected" && (
-                <Button variant="secondary" size="sm" onClick={fetchWhatsAppStatus} disabled={whatsappStatus === "loading"}>
-                  {whatsappStatus === "loading" ? "Generando..." : "🔄 Actualizar QR"}
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Connected State View */}
-          {whatsappStatus === "connected" && (
-            <div className="mt-4 p-3 bg-accent/10 border border-accent/20 rounded-sm">
-              <p className="text-small text-accent font-medium flex items-center gap-2">
-                <span>✓</span> Tu cuenta de WhatsApp está vinculada correctamente. Los recordatorios automáticos de cobro se enviarán desde tu número.
-              </p>
-            </div>
-          )}
-
-          {/* Loading State View */}
-          {whatsappStatus === "loading" && (
-            <div className="mt-4 p-8 flex flex-col items-center justify-center border border-dashed border-border rounded-sm bg-surface">
-              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
-              <p className="text-small text-text-muted">Por favor, espera un momento...</p>
-            </div>
-          )}
-
-          {/* Disconnected State View with QR Code */}
-          {whatsappStatus === "disconnected" && (
-            <div className="mt-5 border-t border-border pt-4">
-              {whatsappQR ? (
-                <div className="flex flex-col items-center justify-center p-4 bg-surface rounded-sm border border-border">
-                  <div className="bg-white p-3 rounded-md shadow-sm border border-border mb-3">
-                    <img src={whatsappQR} alt="WhatsApp QR Code" className="w-56 h-56 object-contain" />
-                  </div>
-                  <h4 className="font-semibold text-text-main text-body mb-1">Escanea el código QR</h4>
-                  <p className="text-small text-text-muted text-center max-w-md">
-                    Abre WhatsApp en tu teléfono, ve a **Dispositivos vinculados** y selecciona **Vincular un dispositivo** para conectar tu cuenta.
-                  </p>
-                </div>
-              ) : (
-                <div className="p-6 text-center border border-dashed border-border rounded-sm bg-surface">
-                  <p className="text-small text-text-muted mb-3">
-                    No se pudo cargar el código QR de conexión de manera automática.
-                  </p>
-                  <Button variant="primary" size="sm" onClick={fetchWhatsAppStatus}>
-                    Generar Código QR
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
         {/* Search and Filters */}
         <div className="space-y-3 mb-4">
           <Input placeholder="Buscar por nombre, teléfono o descripción..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
@@ -1484,206 +1402,6 @@ export default function UserDashboard() {
           </>
         )}
 
-        {/* ======================== TAB: INVENTARIO ======================== */}
-        {activeTab === "inventario" && (
-          <>
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-              <div className="bg-card rounded-md shadow-card border border-border p-4">
-                <div className="text-small text-text-muted mb-1">Total Artículos</div>
-                <div className="text-2xl font-display font-bold text-text-main">{inventoryItems.length}</div>
-                <div className="text-small text-text-sub">{inventoryItems.reduce((s, i) => s + i.stock, 0)} unidades</div>
-              </div>
-              <div className="bg-card rounded-md shadow-card border border-border p-4">
-                <div className="text-small text-text-muted mb-1">Disponibles</div>
-                <div className="text-2xl font-display font-bold text-accent">{inventoryItems.reduce((s, i) => s + i.availableStock, 0)}</div>
-                <div className="text-small text-accent/70">En tienda / bodega</div>
-              </div>
-              <div className="bg-card rounded-md shadow-card border border-border p-4">
-                <div className="text-small text-text-muted mb-1">Prestados / Alquilados</div>
-                <div className="text-2xl font-display font-bold text-warning">{inventoryItems.reduce((s, i) => s + (i.stock - i.availableStock), 0)}</div>
-                <div className="text-small text-warning/70">En la calle</div>
-              </div>
-            </div>
-
-            {/* Actions Bar */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-6">
-              <Button onClick={() => setShowAddInventoryModal(true)} className="flex-1">
-                + Nuevo Producto
-              </Button>
-              <div className="relative flex-1">
-                <input
-                  type="file"
-                  ref={excelInputRef}
-                  accept=".xlsx,.xls,.csv"
-                  onChange={handleExcelImport}
-                  className="hidden"
-                />
-                <Button
-                  variant="secondary"
-                  onClick={() => excelInputRef.current?.click()}
-                  disabled={importingExcel}
-                  className="w-full"
-                >
-                  {importingExcel ? "Importando..." : "📄 Importar Excel"}
-                </Button>
-              </div>
-            </div>
-
-            {/* Search & Filters */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-4">
-              <input
-                type="text"
-                placeholder="Buscar por nombre, SKU o descripción..."
-                value={inventorySearch}
-                onChange={(e) => setInventorySearch(e.target.value)}
-                className="flex-1 px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-              <div className="flex gap-2">
-                {(["all", "available", "out"] as const).map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setInventoryStockFilter(f)}
-                    className={`px-3 py-2 text-small font-medium rounded-sm border transition-colors ${
-                      inventoryStockFilter === f
-                        ? "bg-primary text-white border-primary"
-                        : "bg-white text-text-sub border-border hover:border-primary"
-                    }`}
-                  >
-                    {f === "all" ? "Todos" : f === "available" ? "Disponible" : "Sin Stock"}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Import Help Note */}
-            <div className="bg-primary/5 border border-primary/15 rounded-sm p-3 mb-4">
-              <p className="text-[12px] text-text-sub leading-relaxed">
-                📌 <strong>Para importar desde Excel:</strong> Tu archivo debe tener al menos una columna llamada <strong>&quot;Nombre&quot;</strong>. Columnas opcionales: <strong>&quot;Descripción&quot;</strong>, <strong>&quot;SKU&quot;</strong> o <strong>&quot;Código&quot;</strong>, <strong>&quot;Precio&quot;</strong>, <strong>&quot;Stock&quot;</strong> o <strong>&quot;Cantidad&quot;</strong>.
-              </p>
-            </div>
-
-            {/* Items List */}
-            {(() => {
-              const filtered = inventoryItems.filter((item) => {
-                if (inventorySearch) {
-                  const term = inventorySearch.toLowerCase();
-                  if (
-                    !item.name.toLowerCase().includes(term) &&
-                    !(item.description || "").toLowerCase().includes(term) &&
-                    !(item.sku || "").toLowerCase().includes(term)
-                  ) return false;
-                }
-                if (inventoryStockFilter === "available" && item.availableStock <= 0) return false;
-                if (inventoryStockFilter === "out" && item.availableStock > 0) return false;
-                return true;
-              });
-              return filtered.length === 0 ? (
-                <EmptyState
-                  icon="📦"
-                  title="No hay productos en el inventario"
-                  description="Agrega productos manualmente o importa desde un archivo Excel"
-                  action={
-                    <Button onClick={() => setShowAddInventoryModal(true)}>
-                      + Nuevo Producto
-                    </Button>
-                  }
-                />
-              ) : (
-                <div className="space-y-3">
-                  {filtered.map((item) => (
-                    <div
-                      key={item.id}
-                      className="bg-card rounded-md shadow-card border border-border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-primary/30 transition-colors"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-display font-semibold text-text-main truncate">
-                            {item.name}
-                          </h4>
-                          {item.sku && (
-                            <span className="text-[10px] px-1.5 py-0.5 bg-surface rounded-full font-mono text-text-muted border border-border">
-                              {item.sku}
-                            </span>
-                          )}
-                        </div>
-                        {item.description && (
-                          <p className="text-small text-text-sub mt-0.5 truncate">
-                            {item.description}
-                          </p>
-                        )}
-                        {/* Custom fields tags */}
-                        {item.customFields && typeof item.customFields === "object" && (
-                          <div className="flex flex-wrap gap-1.5 mt-2">
-                            {Object.entries(item.customFields).map(([key, val]) => (
-                              <span key={key} className="text-[10px] px-2 py-0.5 bg-primary/5 text-primary border border-primary/10 rounded-sm font-medium">
-                                <strong>{key}:</strong> {String(val)}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        <div className="flex items-center gap-3 mt-2.5">
-                          {item.price && (
-                            <span className="text-small font-semibold text-primary">
-                              ${Number(item.price).toFixed(2)}
-                            </span>
-                          )}
-                          <span className="text-[11px] text-text-muted">
-                            Stock: {item.stock}
-                          </span>
-                          <span
-                            className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${
-                              item.availableStock > 0
-                                ? "bg-accent/15 text-accent"
-                                : "bg-danger/15 text-danger"
-                            }`}
-                          >
-                            {item.availableStock > 0
-                              ? `${item.availableStock} disponible${item.availableStock > 1 ? "s" : ""}`
-                              : "Sin stock"}
-                          </span>
-                          {item.stock - item.availableStock > 0 && (
-                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-warning/15 text-warning">
-                              {item.stock - item.availableStock} prestado{item.stock - item.availableStock > 1 ? "s" : ""}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => {
-                            setEditingInventoryItem({ ...item });
-                            if (item.customFields && typeof item.customFields === "object") {
-                              const mapped = Object.entries(item.customFields).map(([k, v]) => ({
-                                key: k,
-                                value: String(v)
-                              }));
-                              setManualCustomFields(mapped);
-                            } else {
-                              setManualCustomFields([]);
-                            }
-                            setShowEditInventoryModal(true);
-                          }}
-                        >
-                          ✏️ Editar
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteInventoryItem(item.id)}
-                        >
-                          🗑️
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              );
-            })()}
-          </>
-        )}
 
         {/* ======================== TAB: CLIENTES ======================== */}
         {activeTab === "clientes" && (
@@ -2029,115 +1747,403 @@ export default function UserDashboard() {
       <Modal
         isOpen={showConfig}
         onClose={() => setShowConfig(false)}
-        title="⚙️ Configuración de Avisos por Defecto"
+        title="⚙️ Ajustes y Configuración"
+        className="max-w-2xl"
       >
-        <form onSubmit={handleSaveConfig} className="space-y-5">
-          <div className="bg-primary/5 border border-primary/15 rounded-sm p-3.5">
-            <p className="text-small text-text-main leading-relaxed">
-              📌 Cada vez que crees un nuevo registro de cobro, se generará automáticamente un cronograma de avisos por WhatsApp. Aquí defines <strong>cuántos días seguidos</strong> se enviarán y <strong>a qué hora</strong>.
-            </p>
-          </div>
-
-          <div>
-            <label className="block text-small font-semibold text-text-main mb-1.5">
-              ¿Cuántos días seguidos enviar aviso?
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="50"
-              value={cfgDays}
-              onChange={(e) => setCfgDays(parseInt(e.target.value) || 1)}
-              className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              required
-            />
-            <span className="text-[11px] text-text-muted mt-1 block">
-              Ejemplo: si pones <strong>{cfgDays}</strong>, se enviarán <strong>{cfgDays} avisos</strong>, uno por cada día consecutivo desde la fecha que elijas al crear el registro.
-            </span>
-          </div>
-
-          <div>
-            <label className="block text-small font-semibold text-text-main mb-1.5">
-              ¿A qué hora enviar los avisos?
-            </label>
-            <input
-              type="time"
-              value={cfgTime}
-              onChange={(e) => setCfgTime(e.target.value)}
-              className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
-              required
-            />
-            <span className="text-[11px] text-text-muted mt-1 block">
-              Todos los avisos se programarán a las <strong>{cfgTime || "08:00"}</strong>. Puedes cambiarlo individualmente en cada registro.
-            </span>
-          </div>
-
-          <div>
-            <label className="block text-small font-semibold text-text-main mb-1.5">
-              Mensaje del recordatorio (opcional)
-            </label>
-            <textarea
-              value={cfgMessage}
-              onChange={(e) => setCfgMessage(e.target.value)}
-              rows={4}
-              className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              placeholder={`Hola {nombre} 👋\nTe recordamos que hoy ({fecha}) debes devolver: {descripcion}.\n¡Gracias por confiar en {negocio}!`}
-            />
-            <div className="mt-1.5 flex flex-wrap gap-1.5">
-              {["{nombre}", "{descripcion}", "{monto}", "{negocio}", "{fecha}"].map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => setCfgMessage(prev => (prev ? prev + " " + v : v))}
-                  className="text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 font-mono transition-colors"
-                >
-                  {v}
-                </button>
-              ))}
-            </div>
-            <span className="text-[11px] text-text-muted mt-1.5 block">
-              Usa las variables de arriba para personalizar el mensaje. Si lo dejas vacío, se usará el mensaje predeterminado del sistema.
-            </span>
-          </div>
-
-          {/* Live Preview */}
-          <div className="bg-surface border border-border rounded-sm p-3.5">
-            <p className="text-small font-semibold text-text-main mb-2">👁️ Vista previa — Si crearas un registro hoy:</p>
-            <div className="flex flex-col gap-1.5 max-h-[160px] overflow-y-auto">
-              {Array.from({ length: Math.min(cfgDays, 15) }).map((_, i) => {
-                const d = new Date();
-                d.setDate(d.getDate() + i);
-                const dayName = d.toLocaleDateString("es-EC", { weekday: "short" });
-                const dateStr = d.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" });
-                return (
-                  <div key={i} className="flex items-center gap-2 text-small text-text-sub">
-                    <span className="text-primary">🔔</span>
-                    <span className="font-medium capitalize">{dayName}</span>
-                    <span>{dateStr}</span>
-                    <span className="text-text-muted">a las</span>
-                    <span className="font-semibold text-text-main">{cfgTime || "08:00"}</span>
-                  </div>
-                );
-              })}
-              {cfgDays > 15 && (
-                <span className="text-[11px] text-text-muted text-center">...y {cfgDays - 15} avisos más</span>
-              )}
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4 border-t border-border">
-            <Button
+        <div className="space-y-4">
+          {/* Tabs header inside modal */}
+          <div className="flex border-b border-border bg-surface rounded-t-sm p-1 gap-1">
+            <button
               type="button"
-              variant="secondary"
-              onClick={() => setShowConfig(false)}
+              onClick={() => setSettingsTab("avisos")}
+              className={`flex-1 py-2 text-xs font-bold rounded transition-all text-center ${
+                settingsTab === "avisos"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-text-sub hover:bg-border/30 hover:text-text-main"
+              }`}
             >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={savingCfg}>
-              {savingCfg ? "Guardando..." : "Guardar Cambios"}
-            </Button>
+              📋 Avisos por Defecto
+            </button>
+            <button
+              type="button"
+              onClick={() => setSettingsTab("whatsapp")}
+              className={`flex-1 py-2 text-xs font-bold rounded transition-all text-center ${
+                settingsTab === "whatsapp"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-text-sub hover:bg-border/30 hover:text-text-main"
+              }`}
+            >
+              📱 WhatsApp Web
+            </button>
+            <button
+              type="button"
+              onClick={() => setSettingsTab("inventario")}
+              className={`flex-1 py-2 text-xs font-bold rounded transition-all text-center ${
+                settingsTab === "inventario"
+                  ? "bg-primary text-white shadow-sm"
+                  : "text-text-sub hover:bg-border/30 hover:text-text-main"
+              }`}
+            >
+              📦 Inventario
+            </button>
           </div>
-        </form>
+
+          {/* TAB CONTENT: AVISOS POR DEFECTO */}
+          {settingsTab === "avisos" && (
+            <form onSubmit={handleSaveConfig} className="space-y-5 text-left">
+              <div className="bg-primary/5 border border-primary/15 rounded-sm p-3.5">
+                <p className="text-small text-text-main leading-relaxed">
+                  📌 Cada vez que crees un nuevo registro de cobro, se generará automáticamente un cronograma de avisos por WhatsApp. Aquí defines <strong>cuántos días seguidos</strong> se enviarán y <strong>a qué hora</strong>.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-small font-semibold text-text-main mb-1.5">
+                  ¿Cuántos días seguidos enviar aviso?
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="50"
+                  value={cfgDays}
+                  onChange={(e) => setCfgDays(parseInt(e.target.value) || 1)}
+                  className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+                <span className="text-[11px] text-text-muted mt-1 block">
+                  Ejemplo: si pones <strong>{cfgDays}</strong>, se enviarán <strong>{cfgDays} avisos</strong>, uno por cada día consecutivo desde la fecha que elijas al crear el registro.
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-small font-semibold text-text-main mb-1.5">
+                  ¿A qué hora enviar los avisos?
+                </label>
+                <input
+                  type="time"
+                  value={cfgTime}
+                  onChange={(e) => setCfgTime(e.target.value)}
+                  className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+                <span className="text-[11px] text-text-muted mt-1 block">
+                  Todos los avisos se programarán a las <strong>{cfgTime || "08:00"}</strong>. Puedes cambiarlo individualmente en cada registro.
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-small font-semibold text-text-main mb-1.5">
+                  Mensaje del recordatorio (opcional)
+                </label>
+                <textarea
+                  value={cfgMessage}
+                  onChange={(e) => setCfgMessage(e.target.value)}
+                  rows={4}
+                  className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                  placeholder={`Hola {nombre} 👋\nTe recordamos que hoy ({fecha}) debes devolver: {descripcion}.\n¡Gracias por confiar en {negocio}!`}
+                />
+                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                  {["{nombre}", "{descripcion}", "{monto}", "{negocio}", "{fecha}"].map((v) => (
+                    <button
+                      key={v}
+                      type="button"
+                      onClick={() => setCfgMessage(prev => (prev ? prev + " " + v : v))}
+                      className="text-[11px] px-2 py-0.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 font-mono transition-colors"
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
+                <span className="text-[11px] text-text-muted mt-1.5 block">
+                  Usa las variables de arriba para personalizar el mensaje. Si lo dejas vacío, se usará el mensaje predeterminado del sistema.
+                </span>
+              </div>
+
+              {/* Live Preview */}
+              <div className="bg-surface border border-border rounded-sm p-3.5">
+                <p className="text-small font-semibold text-text-main mb-2">👁️ Vista previa — Si crearas un registro hoy:</p>
+                <div className="flex flex-col gap-1.5 max-h-[120px] overflow-y-auto">
+                  {Array.from({ length: Math.min(cfgDays, 15) }).map((_, i) => {
+                    const d = new Date();
+                    d.setDate(d.getDate() + i);
+                    const dayName = d.toLocaleDateString("es-EC", { weekday: "short" });
+                    const dateStr = d.toLocaleDateString("es-EC", { day: "2-digit", month: "short", year: "numeric" });
+                    return (
+                      <div key={i} className="flex items-center gap-2 text-small text-text-sub">
+                        <span className="text-primary">🔔</span>
+                        <span className="font-medium capitalize">{dayName}</span>
+                        <span>{dateStr}</span>
+                        <span className="text-text-muted">a las</span>
+                        <span className="font-semibold text-text-main">{cfgTime || "08:00"}</span>
+                      </div>
+                    );
+                  })}
+                  {cfgDays > 15 && (
+                    <span className="text-[11px] text-text-muted text-center">...y {cfgDays - 15} avisos más</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setShowConfig(false)}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={savingCfg}>
+                  {savingCfg ? "Guardando..." : "Guardar Cambios"}
+                </Button>
+              </div>
+            </form>
+          )}
+
+          {/* TAB CONTENT: WHATSAPP WEB */}
+          {settingsTab === "whatsapp" && (
+            <div className="space-y-4 text-left">
+              <div className="bg-card rounded-md border border-border p-5">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">📱</span>
+                    <div>
+                      <h3 className="font-display font-semibold text-text-main text-lg">WhatsApp Web</h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className={`w-2.5 h-2.5 rounded-full ${whatsappStatus === "connected" ? "bg-accent" : whatsappStatus === "loading" ? "bg-warning animate-pulse" : "bg-danger"}`}></span>
+                        <span className="text-small font-medium text-text-muted capitalize">
+                          {whatsappStatus === "loading" ? "Procesando..." : whatsappStatus === "connected" ? "Conectado" : "Desconectado"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {whatsappStatus === "connected" && (
+                      <Button variant="danger" size="sm" onClick={handleWhatsAppDisconnect}>
+                        Desconectar Cuenta
+                      </Button>
+                    )}
+                    {whatsappStatus !== "connected" && (
+                      <Button variant="secondary" size="sm" onClick={fetchWhatsAppStatus} disabled={whatsappStatus === "loading"}>
+                        {whatsappStatus === "loading" ? "Generando..." : "🔄 Actualizar QR"}
+                      </Button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Connected State View */}
+                {whatsappStatus === "connected" && (
+                  <div className="mt-4 p-3 bg-accent/10 border border-accent/20 rounded-sm">
+                    <p className="text-small text-accent font-medium flex items-center gap-2">
+                      <span>✓</span> Tu cuenta de WhatsApp está vinculada correctamente. Los recordatorios automáticos de cobro se enviarán desde tu número.
+                    </p>
+                  </div>
+                )}
+
+                {/* Loading State View */}
+                {whatsappStatus === "loading" && (
+                  <div className="mt-4 p-8 flex flex-col items-center justify-center border border-dashed border-border rounded-sm bg-surface">
+                    <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-2"></div>
+                    <p className="text-small text-text-muted">Por favor, espera un momento...</p>
+                  </div>
+                )}
+
+                {/* Disconnected State View with QR Code */}
+                {whatsappStatus === "disconnected" && (
+                  <div className="mt-5 border-t border-border pt-4">
+                    {whatsappQR ? (
+                      <div className="flex flex-col items-center justify-center p-4 bg-surface rounded-sm border border-border">
+                        <div className="bg-white p-3 rounded-md shadow-sm border border-border mb-3">
+                          <img src={whatsappQR} alt="WhatsApp QR Code" className="w-56 h-56 object-contain" />
+                        </div>
+                        <h4 className="font-semibold text-text-main text-body mb-1">Escanea el código QR</h4>
+                        <p className="text-small text-text-muted text-center max-w-md">
+                          Abre WhatsApp en tu teléfono, ve a **Dispositivos vinculados** y selecciona **Vincular un dispositivo** para conectar tu cuenta.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="p-6 text-center border border-dashed border-border rounded-sm bg-surface">
+                        <p className="text-small text-text-muted mb-3">
+                          No se pudo cargar el código QR de conexión de manera automática.
+                        </p>
+                        <Button variant="primary" size="sm" onClick={fetchWhatsAppStatus}>
+                          Generar Código QR
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-border">
+                <Button variant="secondary" onClick={() => setShowConfig(false)}>
+                  Cerrar
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* TAB CONTENT: INVENTARIO */}
+          {settingsTab === "inventario" && (
+            <div className="space-y-4 text-left">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-card rounded-md border border-border p-4">
+                  <div className="text-small text-text-muted mb-1">Total Artículos</div>
+                  <div className="text-2xl font-display font-bold text-text-main">{inventoryItems.length}</div>
+                  <div className="text-small text-text-sub">{inventoryItems.reduce((s, i) => s + i.stock, 0)} uds.</div>
+                </div>
+                <div className="bg-card rounded-md border border-border p-4">
+                  <div className="text-small text-text-muted mb-1">Disponibles</div>
+                  <div className="text-2xl font-display font-bold text-accent">{inventoryItems.reduce((s, i) => s + i.availableStock, 0)}</div>
+                  <div className="text-small text-accent/70">En tienda / bodega</div>
+                </div>
+                <div className="bg-card rounded-md border border-border p-4">
+                  <div className="text-small text-text-muted mb-1">Prestados / Alquilados</div>
+                  <div className="text-2xl font-display font-bold text-warning">{inventoryItems.reduce((s, i) => s + (i.stock - i.availableStock), 0)}</div>
+                  <div className="text-small text-warning/70">En uso</div>
+                </div>
+              </div>
+
+              {/* Actions Bar */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button onClick={() => setShowAddInventoryModal(true)} className="flex-1">
+                  + Nuevo Producto
+                </Button>
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    ref={excelInputRef}
+                    accept=".xlsx,.xls,.csv"
+                    onChange={handleExcelImport}
+                    className="hidden"
+                  />
+                  <Button
+                    variant="secondary"
+                    onClick={() => excelInputRef.current?.click()}
+                    disabled={importingExcel}
+                    className="w-full"
+                  >
+                    {importingExcel ? "Importando..." : "📄 Importar Excel"}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Search & Filters */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre, SKU o descripción..."
+                  value={inventorySearch}
+                  onChange={(e) => setInventorySearch(e.target.value)}
+                  className="flex-1 px-3 py-2 text-xs bg-white border border-border rounded-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+                <div className="flex gap-2 shrink-0">
+                  {(["all", "available", "out"] as const).map((f) => (
+                    <button
+                      key={f}
+                      onClick={() => setInventoryStockFilter(f)}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-sm border transition-colors ${
+                        inventoryStockFilter === f
+                          ? "bg-primary text-white border-primary"
+                          : "bg-white text-text-sub border-border hover:border-primary"
+                      }`}
+                    >
+                      {f === "all" ? "Todos" : f === "available" ? "Disponibles" : "Sin Stock"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Items List inside scroll container */}
+              <div className="max-h-[300px] overflow-y-auto space-y-2 pr-1">
+                {(() => {
+                  const filtered = inventoryItems.filter((item) => {
+                    if (inventorySearch) {
+                      const term = inventorySearch.toLowerCase();
+                      if (
+                        !item.name.toLowerCase().includes(term) &&
+                        !(item.description || "").toLowerCase().includes(term) &&
+                        !(item.sku || "").toLowerCase().includes(term)
+                      ) return false;
+                    }
+                    if (inventoryStockFilter === "available" && item.availableStock <= 0) return false;
+                    if (inventoryStockFilter === "out" && item.availableStock > 0) return false;
+                    return true;
+                  });
+
+                  if (filtered.length === 0) {
+                    return (
+                      <p className="text-center py-8 text-xs text-text-muted bg-surface rounded border border-dashed border-border">
+                        No hay productos que coincidan.
+                      </p>
+                    );
+                  }
+
+                  return filtered.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-card rounded border border-border p-3 flex justify-between items-center gap-3 hover:border-primary/30 transition-colors text-xs"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-text-main truncate">{item.name}</span>
+                          {item.sku && (
+                            <span className="text-[9px] px-1 bg-surface rounded font-mono text-text-muted border border-border">
+                              {item.sku}
+                            </span>
+                          )}
+                        </div>
+                        {item.description && (
+                          <p className="text-[11px] text-text-sub truncate mt-0.5">{item.description}</p>
+                        )}
+                        <div className="flex items-center gap-2 mt-1 text-[10px] text-text-muted">
+                          <span>Precio: ${Number(item.price || 0).toFixed(2)}</span>
+                          <span>•</span>
+                          <span className="font-semibold text-primary">{item.availableStock} de {item.stock} disp.</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingInventoryItem({ ...item });
+                            if (item.customFields && typeof item.customFields === "object") {
+                              const mapped = Object.entries(item.customFields).map(([k, v]) => ({
+                                key: k,
+                                value: String(v)
+                              }));
+                              setManualCustomFields(mapped);
+                            } else {
+                              setManualCustomFields([]);
+                            }
+                            setShowEditInventoryModal(true);
+                          }}
+                          className="px-2 py-1 text-[10px] font-semibold bg-primary/10 text-primary rounded hover:bg-primary/20"
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteInventoryItem(item.id)}
+                          className="p-1 text-danger hover:bg-danger/5 rounded"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                  ));
+                })()}
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-border">
+                <Button variant="secondary" onClick={() => setShowConfig(false)}>
+                  Cerrar
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
       </Modal>
 
       {/* Detailed Record Modal */}

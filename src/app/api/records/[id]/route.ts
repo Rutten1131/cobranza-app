@@ -103,10 +103,15 @@ export async function PATCH(
           (c) => new Date(c.scheduledDate).getTime() === itemDate.getTime()
         );
 
+        const now = new Date();
+        const schedStatus = match 
+          ? match.status 
+          : (itemDate <= now ? "skipped" : (item.status || "pending"));
+
         return {
           scheduledDate: itemDate,
           reminderNumber: idx + 1,
-          status: match ? match.status : (item.status || "pending"),
+          status: schedStatus,
           sentAt: match ? match.sentAt : null,
         };
       });
@@ -133,11 +138,15 @@ export async function PATCH(
       }
 
       // Crear nueva programación
-      const reminderCreateData = sortedDates.map((dateStr, idx) => ({
-        scheduledDate: new Date(dateStr),
-        reminderNumber: idx + 1,
-        status: "pending",
-      }));
+      const now = new Date();
+      const reminderCreateData = sortedDates.map((dateStr, idx) => {
+        const schedDate = new Date(dateStr);
+        return {
+          scheduledDate: schedDate,
+          reminderNumber: idx + 1,
+          status: schedDate <= now ? "skipped" : "pending",
+        };
+      });
 
       await prisma.record.update({
         where: { id },
