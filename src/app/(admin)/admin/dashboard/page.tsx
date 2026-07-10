@@ -285,9 +285,9 @@ export default function AdminDashboard() {
         </Button>
 
         {/* Users List */}
-        <div className="bg-card rounded-md shadow-card border border-border overflow-hidden">
-          <div className="p-4 border-b border-border">
-            <h2 className="text-h2 font-display text-text-main">Usuarios</h2>
+        <div className="card-float overflow-hidden">
+          <div className="p-4 border-b border-glass">
+            <h2 className="text-h2 font-display text-white">Usuarios</h2>
           </div>
 
           {users.length === 0 ? (
@@ -299,71 +299,71 @@ export default function AdminDashboard() {
               />
             </div>
           ) : (
-            <div className="divide-y divide-border">
+            <div className="divide-y divide-glass">
               {users.map((u) => (
-                <div key={u.id} className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                <div key={u.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-start gap-3">
                     <span className="text-2xl">👤</span>
                     <div>
-                      <p className="font-medium text-text-main">
+                      <p className="font-medium text-white">
                         {u.businessName || "Sin nombre"}
                       </p>
                       <p className="text-small text-text-sub">{u.email}</p>
                       <p className="text-small text-text-muted font-mono">
                         {u._count.clients} clientes · {u._count.records} registros
                       </p>
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {u.hasCobranzas && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
-                          💰 Cobranzas
-                        </span>
-                      )}
-                      {u.hasHabitaciones && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-warning/10 text-warning border border-warning/20">
-                          🏨 Habitaciones
-                        </span>
-                      )}
-                      {!u.hasCobranzas && !u.hasHabitaciones && (
-                        <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-danger/10 text-danger border border-danger/20">
-                          Ninguno
-                        </span>
-                      )}
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {u.hasCobranzas && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+                            💰 Cobranzas
+                          </span>
+                        )}
+                        {u.hasHabitaciones && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-warning/10 text-warning border border-warning/20">
+                            🏨 Habitaciones
+                          </span>
+                        )}
+                        {!u.hasCobranzas && !u.hasHabitaciones && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-danger/10 text-danger border border-danger/20">
+                            Ninguno
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      u.isActive ? "bg-accent" : "bg-text-muted"
-                    }`}
-                  />
-                  <span className="text-small text-text-sub">
-                    {u.isActive ? "Activo" : "Inactivo"}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setEditingUser({ ...u });
-                      setShowEditModal(true);
-                    }}
-                  >
-                    ✏️ Configurar
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleToggleActive(u.id, u.isActive)}
-                  >
-                    {u.isActive ? "Desactivar" : "Activar"}
-                  </Button>
-                  <Button
-                    variant="danger"
-                    size="sm"
-                    onClick={() => handleDeleteClick(u)}
-                  >
-                    🗑️ Eliminar
-                  </Button>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        u.isActive ? "bg-accent" : "bg-text-muted"
+                      }`}
+                    />
+                    <span className="text-small text-text-sub">
+                      {u.isActive ? "Activo" : "Inactivo"}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setEditingUser({ ...u });
+                        setShowEditModal(true);
+                      }}
+                    >
+                      ✏️
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleToggleActive(u.id, u.isActive)}
+                    >
+                      {u.isActive ? "Desact" : "Activar"}
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDeleteClick(u)}
+                    >
+                      🗑️
+                    </Button>
                   </div>
                 </div>
               ))}
