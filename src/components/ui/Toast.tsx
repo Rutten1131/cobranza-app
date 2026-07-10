@@ -24,23 +24,24 @@ export function Toast({
   }, [onClose, duration]);
 
   const styles = {
-    success: "bg-accent text-white",
-    error: "bg-danger text-white",
-    info: "bg-primary text-white",
+    success: "bg-accent text-white shadow-glow-sm",
+    error: "bg-danger text-white shadow-glow-sm",
+    info: "bg-primary text-white shadow-glow-sm",
   };
 
   return (
     <div
       className={cn(
-        "fixed bottom-4 right-4 z-50 px-4 py-3 rounded-md shadow-lg",
-        "flex items-center gap-2 animate-fade-up",
+        "fixed bottom-5 right-5 z-50 px-5 py-3 rounded-lg",
+        "flex items-center gap-3 animate-fade-up glass",
+        "border border-glass-light",
         styles[type],
         className
       )}
     >
       <span>{type === "success" ? "✓" : type === "error" ? "✕" : "ℹ"}</span>
       <span className="text-body">{message}</span>
-      <button onClick={onClose} className="ml-2 opacity-70 hover:opacity-100">
+      <button onClick={onClose} className="ml-2 opacity-70 hover:opacity-100 transition-opacity">
         ✕
       </button>
     </div>

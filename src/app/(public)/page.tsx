@@ -3,13 +3,13 @@ import { Button } from "@/components/ui";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-dark">
       {/* Navbar */}
-      <header className="bg-card border-b border-border">
+      <header className="bg-background-secondary/80 backdrop-blur-md border-b border-glass">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-2xl">💰</span>
-            <span className="text-xl font-display font-bold text-text-main">
+            <span className="text-xl font-display font-bold text-white">
               CobrApp
             </span>
           </div>
@@ -27,7 +27,7 @@ export default function HomePage() {
         <div className="absolute inset-0 dot-pattern" />
 
         <div className="relative max-w-5xl mx-auto px-4 py-20 flex flex-col items-center text-center">
-          <h1 className="text-display font-display text-text-main mb-4 animate-fade-up">
+          <h1 className="text-display font-display text-white mb-4 animate-fade-up">
             Cobra a tiempo.
             <br />
             Sin complicaciones.
@@ -69,7 +69,7 @@ export default function HomePage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-card border-t border-border py-6">
+      <footer className="bg-background-secondary/50 border-t border-glass py-6">
         <div className="max-w-5xl mx-auto px-4 text-center text-small text-text-muted">
           © {new Date().getFullYear()} CobrApp. Todos los derechos reservados.
         </div>

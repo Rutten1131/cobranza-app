@@ -110,13 +110,13 @@ export default function ClientsPage() {
   return (
     <div className="min-h-screen bg-surface">
       {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-10">
+      <header className="bg-background-secondary/80 backdrop-blur-md border-b border-glass sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <button onClick={() => router.push("/app/dashboard")} className="text-text-sub hover:text-text-main">
+            <button onClick={() => router.push("/app/dashboard")} className="text-text-sub hover:text-white">
               ←
             </button>
-            <span className="text-xl font-display font-bold text-text-main">
+            <span className="text-xl font-display font-bold text-white">
               Clientes
             </span>
           </div>
@@ -150,11 +150,11 @@ export default function ClientsPage() {
             }
           />
         ) : (
-          <div className="bg-card rounded-md shadow-card border border-border divide-y divide-border">
+          <div className="card-float divide-y divide-glass">
             {filteredClients.map((client) => (
               <div key={client.id} className="p-4 flex items-center justify-between">
                 <div>
-                  <p className="font-medium text-text-main">{client.name}</p>
+                  <p className="font-medium text-white">{client.name}</p>
                   <p className="text-small text-text-sub font-mono">
                     {client.phone}
                   </p>
@@ -203,11 +203,11 @@ export default function ClientsPage() {
           />
 
           <div>
-            <label className="block text-small font-medium text-text-main mb-1.5">
+            <label className="block text-small font-medium text-text-sub mb-2">
               Notas (opcional)
             </label>
             <textarea
-              className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              className="w-full px-4 py-3 text-body bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-none text-white"
               rows={3}
               placeholder="Notas adicionales..."
               value={newClient.notes}

@@ -42,18 +42,18 @@ export function RecordCard({
   return (
     <div
       className={cn(
-        "bg-card rounded-md p-4 shadow-card border border-border",
+        "card-float p-5",
         className
       )}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-2">
             <StatusBadge status={displayStatus} />
           </div>
-          <h3 className="font-semibold text-text-main truncate">{clientName}</h3>
-          <p className="text-small text-text-sub truncate">{description}</p>
-          <div className="flex items-center gap-3 mt-2 text-small">
+          <h3 className="font-semibold text-white truncate">{clientName}</h3>
+          <p className="text-small text-text-sub truncate mt-1">{description}</p>
+          <div className="flex items-center gap-4 mt-3 text-small">
             <span className="text-text-muted font-mono">
               📅 {formatDate(dueDate)}
             </span>

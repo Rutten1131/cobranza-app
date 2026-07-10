@@ -11,23 +11,23 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", disabled, ...props }, ref) => {
     const baseStyles =
-      "inline-flex items-center justify-center font-medium rounded-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+      "inline-flex items-center justify-center font-medium transition-all duration-250 ease-out focus:outline-none focus:ring-2 focus:ring-primary/50 disabled:opacity-50 disabled:cursor-not-allowed btn-hover-scale";
 
     const variants = {
       primary:
-        "bg-primary text-white hover:bg-primary-dark focus:ring-primary",
+        "bg-primary text-white rounded-pill px-6 py-3 shadow-glow hover:brightness-110 focus:ring-primary",
       secondary:
-        "bg-white text-text-main border border-border hover:bg-surface focus:ring-border",
+        "bg-surface-card text-white border border-glass-light rounded-pill px-6 py-3 hover:bg-surface-secondary focus:ring-primary/50",
       danger:
-        "bg-danger text-white hover:bg-red-600 focus:ring-danger",
+        "bg-danger text-white rounded-pill px-6 py-3 hover:bg-red-500 focus:ring-danger",
       ghost:
-        "text-text-sub hover:bg-surface hover:text-text-main focus:ring-border",
+        "text-text-sub hover:text-white hover:bg-white/5 rounded-pill px-6 py-3 focus:ring-white/20",
     };
 
     const sizes = {
-      sm: "text-small px-3 py-1.5",
-      md: "text-body px-4 py-2",
-      lg: "text-body px-6 py-3",
+      sm: "text-small px-4 py-2",
+      md: "text-body px-6 py-3",
+      lg: "text-body px-8 py-4",
     };
 
     return (

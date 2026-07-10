@@ -1132,13 +1132,13 @@ export default function UserDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-gradient-dark">
       {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-10">
+      <header className="bg-background-secondary/80 backdrop-blur-md border-b border-glass sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-2xl">💰</span>
-            <span className="text-xl font-display font-bold text-text-main">
+            <span className="text-xl font-display font-bold text-white">
               {user?.businessName || "CobrApp"}
             </span>
             {/* System Switcher */}
@@ -1474,12 +1474,12 @@ export default function UserDashboard() {
         {!showNewClient ? (
           <form onSubmit={handleCreateRecord} className="space-y-4">
             <div>
-              <label className="block text-small font-medium text-text-main mb-1.5">
+              <label className="block text-small font-medium text-text-sub mb-2">
                 Cliente
               </label>
               <div className="flex gap-2">
                 <select
-                  className="flex-1 px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="flex-1 px-4 py-3 text-body bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-white"
                   value={newRecord.clientId}
                   onChange={(e) =>
                     setNewRecord({ ...newRecord, clientId: e.target.value })
@@ -1505,11 +1505,11 @@ export default function UserDashboard() {
             </div>
 
             <div>
-              <label className="block text-small font-medium text-text-main mb-1.5">
+              <label className="block text-small font-medium text-text-sub mb-2">
                 Vincular Artículo de Inventario (Opcional)
               </label>
               <select
-                className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 text-body bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-white"
                 value={newRecord.inventoryItemId}
                 onChange={(e) => {
                   const itemId = e.target.value;
@@ -1560,19 +1560,19 @@ export default function UserDashboard() {
               required
             />
              {/* Custom Reminder Dates Panel */}
-            <div className="bg-surface border border-border rounded-sm p-3.5 space-y-3">
-              <label className="block text-small font-semibold text-text-main">
+            <div className="bg-surface-card border border-glass rounded-md p-4 space-y-3">
+              <label className="block text-small font-semibold text-white">
                 Cronograma de Avisos (WhatsApp)
               </label>
               
-              <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto p-1.5 bg-white rounded-sm border border-border">
+              <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto p-1.5 bg-background-secondary rounded-md border border-glass">
                 {reminderDates.length === 0 ? (
                   <span className="text-small text-text-muted p-1 text-center">No hay avisos programados</span>
                 ) : (
                   reminderDates.map((dateWithTime, idx) => {
                     const [datePart, timePart] = dateWithTime.split("T");
                     return (
-                      <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-surface rounded-sm border border-border">
+                      <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2 bg-surface-card rounded-md border border-glass">
                         <span className="text-small font-semibold text-text-muted">🔔 #{idx + 1}</span>
                         <div className="flex gap-1.5 flex-1">
                           <input
@@ -1586,7 +1586,7 @@ export default function UserDashboard() {
                                 setReminderDates(updated);
                               }
                             }}
-                            className="flex-1 min-w-[120px] px-2 py-1 text-[13px] bg-white border border-border rounded-sm focus:outline-none"
+                            className="flex-1 min-w-[120px] px-3 py-2 text-[13px] bg-surface-card border border-glass rounded-md focus:outline-none text-white"
                           />
                           <input
                             type="time"
@@ -1599,7 +1599,7 @@ export default function UserDashboard() {
                                 setReminderDates(updated);
                               }
                             }}
-                            className="w-[90px] px-2 py-1 text-[13px] bg-white border border-border rounded-sm focus:outline-none"
+                            className="w-[90px] px-3 py-2 text-[13px] bg-surface-card border border-glass rounded-md focus:outline-none text-white"
                           />
                         </div>
                         <button
@@ -1617,14 +1617,14 @@ export default function UserDashboard() {
               </div>
 
               {/* Add Custom Date Control */}
-              <div className="flex flex-col sm:flex-row gap-2 items-end pt-1 bg-surface/50 p-2 rounded-sm border border-border">
+              <div className="flex flex-col sm:flex-row gap-2 items-end pt-1 bg-background-secondary/50 p-3 rounded-md border border-glass">
                 <div className="flex-1 w-full">
                   <span className="text-[10px] text-text-muted block mb-1">Agregar fecha:</span>
                   <input
                     type="date"
                     value={newReminderDate}
                     onChange={(e) => setNewReminderDate(e.target.value)}
-                    className="w-full px-2 py-1 text-small bg-white border border-border rounded-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full px-3 py-2 text-small bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-1 focus:ring-primary text-white"
                   />
                 </div>
                 <div className="w-full sm:w-[90px]">
@@ -1633,7 +1633,7 @@ export default function UserDashboard() {
                     type="time"
                     value={newReminderTime}
                     onChange={(e) => setNewReminderTime(e.target.value)}
-                    className="w-full px-2 py-1 text-small bg-white border border-border rounded-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full px-3 py-2 text-small bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-1 focus:ring-primary text-white"
                   />
                 </div>
                 <Button
@@ -1652,7 +1652,7 @@ export default function UserDashboard() {
             </div>
 
             <div>
-              <label className="block text-small font-semibold text-text-main mb-1.5">
+              <label className="block text-small font-semibold text-white mb-2">
                 Mensaje personalizado para este cobro (opcional)
               </label>
               <textarea
@@ -1661,8 +1661,8 @@ export default function UserDashboard() {
                   setNewRecord({ ...newRecord, customMessage: e.target.value })
                 }
                 rows={3}
-                className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                placeholder={user?.defaultReminderMessage || `Hola {nombre} 👋\nTe recordamos que hoy ({fecha}) debes devolver: {descripcion}.\n¡Gracias por confiar en {negocio}!`}
+                className="w-full px-4 py-3 text-body bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-none text-white"
+                placeholder={user?.defaultReminderMessage || `¡Hola {nombre}! 👋\n\nTe contactamos desde {negocio} para recordarte que hoy ({fecha}) corresponde la devolución de **{descripcion}**.\n\n¿Podrías confirmarnos la hora aproximada de entrega? Nos ayuda a tener todo preparado para recibirlo.\n\n¡Gracias por tu tiempo!\n\nSaludos,\n{negocio}`}
               />
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {["{nombre}", "{descripcion}", "{monto}", "{negocio}", "{fecha}"].map((v) => (
@@ -1798,7 +1798,7 @@ export default function UserDashboard() {
               </div>
 
               <div>
-                <label className="block text-small font-semibold text-text-main mb-1.5">
+                <label className="block text-small font-semibold text-white mb-2">
                   ¿Cuántos días seguidos enviar aviso?
                 </label>
                 <input
@@ -1807,7 +1807,7 @@ export default function UserDashboard() {
                   max="50"
                   value={cfgDays}
                   onChange={(e) => setCfgDays(parseInt(e.target.value) || 1)}
-                  className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-3 text-body bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-white"
                   required
                 />
                 <span className="text-[11px] text-text-muted mt-1 block">
@@ -1816,14 +1816,14 @@ export default function UserDashboard() {
               </div>
 
               <div>
-                <label className="block text-small font-semibold text-text-main mb-1.5">
+                <label className="block text-small font-semibold text-white mb-2">
                   ¿A qué hora enviar los avisos?
                 </label>
                 <input
                   type="time"
                   value={cfgTime}
                   onChange={(e) => setCfgTime(e.target.value)}
-                  className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-4 py-3 text-body bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-white"
                   required
                 />
                 <span className="text-[11px] text-text-muted mt-1 block">
@@ -1832,15 +1832,15 @@ export default function UserDashboard() {
               </div>
 
               <div>
-                <label className="block text-small font-semibold text-text-main mb-1.5">
+                <label className="block text-small font-semibold text-white mb-2">
                   Mensaje del recordatorio (opcional)
                 </label>
                 <textarea
                   value={cfgMessage}
                   onChange={(e) => setCfgMessage(e.target.value)}
                   rows={4}
-                  className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                  placeholder={`Hola {nombre} 👋\nTe recordamos que hoy ({fecha}) debes devolver: {descripcion}.\n¡Gracias por confiar en {negocio}!`}
+                  className="w-full px-4 py-3 text-body bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-none text-white"
+                  placeholder={`¡Hola {nombre}! 👋\n\nTe contactamos desde {negocio} para recordarte que hoy ({fecha}) corresponde la devolución de **{descripcion}**.\n\n¿Podrías confirmarnos la hora aproximada de entrega? Nos ayuda a tener todo preparado para recibirlo.\n\n¡Gracias por tu tiempo!\n\nSaludos,\n{negocio}`}
                 />
                 <div className="mt-1.5 flex flex-wrap gap-1.5">
                   {["{nombre}", "{descripcion}", "{monto}", "{negocio}", "{fecha}"].map((v) => (
@@ -1860,8 +1860,8 @@ export default function UserDashboard() {
               </div>
 
               {/* Live Preview */}
-              <div className="bg-surface border border-border rounded-sm p-3.5">
-                <p className="text-small font-semibold text-text-main mb-2">👁️ Vista previa — Si crearas un registro hoy:</p>
+              <div className="bg-surface-card border border-glass rounded-md p-4">
+                <p className="text-small font-semibold text-white mb-2">👁️ Vista previa — Si crearas un registro hoy:</p>
                 <div className="flex flex-col gap-1.5 max-h-[120px] overflow-y-auto">
                   {Array.from({ length: Math.min(cfgDays, 15) }).map((_, i) => {
                     const d = new Date();
@@ -1952,11 +1952,11 @@ export default function UserDashboard() {
                 {whatsappStatus === "disconnected" && (
                   <div className="mt-5 border-t border-border pt-4">
                     {whatsappQR ? (
-                      <div className="flex flex-col items-center justify-center p-4 bg-surface rounded-sm border border-border">
+                      <div className="flex flex-col items-center justify-center p-4 bg-surface-card rounded-md border border-glass">
                         <div className="bg-white p-3 rounded-md shadow-sm border border-border mb-3">
                           <img src={whatsappQR} alt="WhatsApp QR Code" className="w-56 h-56 object-contain" />
                         </div>
-                        <h4 className="font-semibold text-text-main text-body mb-1">Escanea el código QR</h4>
+                        <h4 className="font-semibold text-white text-body mb-1">Escanea el código QR</h4>
                         <p className="text-small text-text-muted text-center max-w-md">
                           Abre WhatsApp en tu teléfono, ve a **Dispositivos vinculados** y selecciona **Vincular un dispositivo** para conectar tu cuenta.
                         </p>
@@ -1988,17 +1988,17 @@ export default function UserDashboard() {
             <div className="space-y-4 text-left">
               {/* Stats Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-card rounded-md border border-border p-4">
+                <div className="card-float p-4">
                   <div className="text-small text-text-muted mb-1">Total Artículos</div>
-                  <div className="text-2xl font-display font-bold text-text-main">{inventoryItems.length}</div>
+                  <div className="text-2xl font-display font-bold text-white">{inventoryItems.length}</div>
                   <div className="text-small text-text-sub">{inventoryItems.reduce((s, i) => s + i.stock, 0)} uds.</div>
                 </div>
-                <div className="bg-card rounded-md border border-border p-4">
+                <div className="card-float p-4">
                   <div className="text-small text-text-muted mb-1">Disponibles</div>
                   <div className="text-2xl font-display font-bold text-accent">{inventoryItems.reduce((s, i) => s + i.availableStock, 0)}</div>
                   <div className="text-small text-accent/70">En tienda / bodega</div>
                 </div>
-                <div className="bg-card rounded-md border border-border p-4">
+                <div className="card-float p-4">
                   <div className="text-small text-text-muted mb-1">Prestados / Alquilados</div>
                   <div className="text-2xl font-display font-bold text-warning">{inventoryItems.reduce((s, i) => s + (i.stock - i.availableStock), 0)}</div>
                   <div className="text-small text-warning/70">En uso</div>
@@ -2036,17 +2036,17 @@ export default function UserDashboard() {
                   placeholder="Buscar por nombre, SKU o descripción..."
                   value={inventorySearch}
                   onChange={(e) => setInventorySearch(e.target.value)}
-                  className="flex-1 px-3 py-2 text-xs bg-white border border-border rounded-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="flex-1 px-4 py-3 text-xs bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-1 focus:ring-primary text-white"
                 />
                 <div className="flex gap-2 shrink-0">
                   {(["all", "available", "out"] as const).map((f) => (
                     <button
                       key={f}
                       onClick={() => setInventoryStockFilter(f)}
-                      className={`px-3 py-1.5 text-xs font-semibold rounded-sm border transition-colors ${
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-md border transition-colors ${
                         inventoryStockFilter === f
                           ? "bg-primary text-white border-primary"
-                          : "bg-white text-text-sub border-border hover:border-primary"
+                          : "bg-surface-card text-text-sub border-glass hover:border-primary"
                       }`}
                     >
                       {f === "all" ? "Todos" : f === "available" ? "Disponibles" : "Sin Stock"}
@@ -2074,7 +2074,7 @@ export default function UserDashboard() {
 
                   if (filtered.length === 0) {
                     return (
-                      <p className="text-center py-8 text-xs text-text-muted bg-surface rounded border border-dashed border-border">
+                      <p className="text-center py-8 text-xs text-text-muted bg-surface-card rounded border border-dashed border-glass">
                         No hay productos que coincidan.
                       </p>
                     );
@@ -2186,19 +2186,19 @@ export default function UserDashboard() {
                 />
 
                 {/* Edit Reminder Dates Section */}
-                <div className="bg-surface border border-border rounded-sm p-3.5 space-y-3">
-                  <label className="block text-small font-semibold text-text-main">
+                <div className="bg-surface-card border border-glass rounded-md p-4 space-y-3">
+                  <label className="block text-small font-semibold text-white">
                     Modificar Cronograma de Avisos
                   </label>
 
-                  <div className="flex flex-col gap-2 max-h-[160px] overflow-y-auto p-1.5 bg-white rounded-sm border border-border">
+                  <div className="flex flex-col gap-2 max-h-[160px] overflow-y-auto p-1.5 bg-background-secondary rounded-md border border-glass">
                     {editReminderDates.length === 0 ? (
                       <span className="text-small text-text-muted p-1 text-center">No hay avisos en el cronograma</span>
                     ) : (
                       editReminderDates.map((dateWithTime, idx) => {
                         const [datePart, timePart] = dateWithTime.split("T");
                         return (
-                          <div key={idx} className="flex items-center justify-between gap-2 p-1.5 bg-surface rounded-sm border border-border/60">
+                          <div key={idx} className="flex items-center justify-between gap-2 p-2 bg-surface-card rounded-md border border-glass">
                             <span className="text-small font-semibold text-text-muted">🔔 #{idx + 1}</span>
                             <div className="flex items-center gap-1.5 flex-1 justify-end">
                               <input
@@ -2209,7 +2209,7 @@ export default function UserDashboard() {
                                   updated[idx] = `${e.target.value}T${timePart || "08:00"}`;
                                   setEditReminderDates(updated.sort());
                                 }}
-                                className="px-2 py-1 text-small bg-white border border-border rounded-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono"
+                                className="px-3 py-2 text-small bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-1 focus:ring-primary font-mono text-white"
                               />
                               <input
                                 type="time"
@@ -2219,12 +2219,12 @@ export default function UserDashboard() {
                                   updated[idx] = `${datePart}T${e.target.value}`;
                                   setEditReminderDates(updated.sort());
                                 }}
-                                className="px-2 py-1 text-small bg-white border border-border rounded-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono"
+                                className="px-3 py-2 text-small bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-1 focus:ring-primary font-mono text-white"
                               />
                               <button
                                 type="button"
                                 onClick={() => handleRemoveEditReminder(dateWithTime)}
-                                className="text-danger hover:bg-danger/10 p-1.5 rounded-sm text-small font-bold"
+                                className="text-danger hover:bg-danger/10 p-1.5 rounded-md text-small font-bold"
                                 title="Eliminar aviso"
                               >
                                 ✕
@@ -2237,17 +2237,17 @@ export default function UserDashboard() {
                   </div>
 
                   {/* Add new date to schedule */}
-                  <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-border/50">
+                  <div className="flex flex-col sm:flex-row gap-2 pt-2 border-t border-glass/50">
                     <div className="flex-1 flex gap-1">
                       <input
                         type="date"
-                        className="flex-1 px-2.5 py-1 text-small bg-white border border-border rounded-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        className="flex-1 px-3 py-2 text-small bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-1 focus:ring-primary text-white"
                         value={newEditReminderDate}
                         onChange={(e) => setNewEditReminderDate(e.target.value)}
                       />
                       <input
                         type="time"
-                        className="w-[90px] px-2.5 py-1 text-small bg-white border border-border rounded-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                        className="w-[90px] px-3 py-2 text-small bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-1 focus:ring-primary text-white"
                         value={newEditReminderTime}
                         onChange={(e) => setNewEditReminderTime(e.target.value)}
                       />
@@ -2272,7 +2272,7 @@ export default function UserDashboard() {
                     onChange={(e) => setEditCustomMessage(e.target.value)}
                     rows={3}
                     className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                    placeholder={user?.defaultReminderMessage || `Hola {nombre} 👋\nTe recordamos que hoy ({fecha}) debes devolver: {descripcion}.\n¡Gracias por confiar en {negocio}!`}
+                    placeholder={user?.defaultReminderMessage || `¡Hola {nombre}! 👋\n\nTe contactamos desde {negocio} para recordarte que hoy ({fecha}) corresponde la devolución de **{descripcion}**.\n\n¿Podrías confirmarnos la hora aproximada de entrega? Nos ayuda a tener todo preparado para recibirlo.\n\n¡Gracias por tu tiempo!\n\nSaludos,\n{negocio}`}
                   />
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
                     {["{nombre}", "{descripcion}", "{monto}", "{negocio}", "{fecha}"].map((v) => (

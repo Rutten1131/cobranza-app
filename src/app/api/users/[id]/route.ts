@@ -98,3 +98,35 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const auth = await getAuthFromRequest(req);
+    const { id } = await params;
+
+    if (!auth || auth.role !== "admin") {
+      return NextResponse.json({ error: "No autorizado" }, { status: 403 });
+    }
+
+    // Prevent deleting yourself
+    if (auth.userId === id) {
+      return NextResponse.json(
+        { error: "No puedes eliminar tu propia cuenta" },
+        { status: 400 }
+      );
+    }
+
+    await prisma.user.delete({ where: { id } });
+
+    return NextResponse.json({ message: "Usuario eliminado correctamente" });
+  } catch (error) {
+    console.error("Delete user error:", error);
+    return NextResponse.json(
+      { error: "Error interno del servidor" },
+      { status: 500 }
+    );
+  }
+}

@@ -52,21 +52,21 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-surface">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-gradient-dark">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <Link href="/" className="flex items-center gap-2 mb-4">
             <span className="text-3xl">💰</span>
-            <span className="text-2xl font-display font-bold text-text-main">
+            <span className="text-2xl font-display font-bold text-white">
               CobrApp
             </span>
           </Link>
         </div>
 
         {/* Form Card */}
-        <div className="bg-card rounded-md shadow-card p-6 border border-border">
-          <h1 className="text-h1 font-display text-text-main text-center mb-6">
+        <div className="card-float p-6">
+          <h1 className="text-h1 font-display text-white text-center mb-6">
             Iniciar Sesión
           </h1>
 

@@ -22,8 +22,8 @@ export function EmptyState({
         className
       )}
     >
-      <span className="text-4xl mb-4">{icon}</span>
-      <h3 className="text-h2 font-display text-text-main mb-2">{title}</h3>
+      <span className="text-5xl mb-5">{icon}</span>
+      <h3 className="text-h2 font-display text-white mb-2">{title}</h3>
       {description && (
         <p className="text-body text-text-sub max-w-sm mb-6">{description}</p>
       )}

@@ -68,21 +68,21 @@ export function Calendar({ events, onDayClick, className }: CalendarProps) {
   };
 
   return (
-    <div className={cn("bg-card rounded-md shadow-card border border-border p-4", className)}>
+    <div className={cn("card-float p-5", className)}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <button
           onClick={() => setCurrentMonth(subMonths(currentMonth, 1))}
-          className="p-2 hover:bg-surface rounded-sm transition-colors text-text-sub"
+          className="p-2 hover:bg-white/5 rounded-md transition-colors text-text-sub"
         >
           ←
         </button>
-        <h3 className="text-h2 font-display text-text-main">
+        <h3 className="text-h2 font-display text-white capitalize">
           {format(currentMonth, "MMMM yyyy", { locale: es })}
         </h3>
         <button
           onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
-          className="p-2 hover:bg-surface rounded-sm transition-colors text-text-sub"
+          className="p-2 hover:bg-white/5 rounded-md transition-colors text-text-sub"
         >
           →
         </button>

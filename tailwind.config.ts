@@ -9,19 +9,31 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Dark Glassmorphism Palette
         primary: {
-          DEFAULT: "#1B4FD8",
-          dark: "#1239A8",
+          DEFAULT: "#3F68FF",
+          dark: "#2D4FD9",
+          light: "#6D8CFF",
         },
         accent: "#22C55E",
         warning: "#F59E0B",
         danger: "#EF4444",
-        surface: "#F8FAFC",
-        card: "#FFFFFF",
-        border: "#E2E8F0",
-        "text-main": "#0F172A",
-        "text-sub": "#64748B",
-        "text-muted": "#94A3B8",
+        surface: {
+          DEFAULT: "#161E3A",
+          secondary: "#1D2446",
+          card: "#222A4B",
+        },
+        background: {
+          primary: "#161E3A",
+          secondary: "#1D2446",
+        },
+        "text-main": "#FFFFFF",
+        "text-sub": "#B9C3E3",
+        "text-muted": "#8B93B6",
+        border: {
+          DEFAULT: "rgba(255,255,255,0.06)",
+          light: "rgba(255,255,255,0.12)",
+        },
       },
       fontFamily: {
         display: ['"Plus Jakarta Sans"', "sans-serif"],
@@ -36,14 +48,22 @@ const config: Config = {
         small: ["0.875rem", { lineHeight: "1.5", fontWeight: "400" }],
       },
       borderRadius: {
-        sm: "6px",
-        md: "12px",
+        xs: "8px",
+        sm: "12px",
+        md: "16px",
         lg: "20px",
+        xl: "28px",
         pill: "9999px",
       },
       boxShadow: {
-        card: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
-        modal: "0 20px 40px rgba(0,0,0,0.12)",
+        card: "0 10px 30px rgba(0,0,0,0.35)",
+        "card-sm": "0 4px 12px rgba(0,0,0,0.18)",
+        modal: "0 20px 40px rgba(0,0,0,0.45)",
+        glow: "0 0 25px rgba(80,120,255,0.45)",
+        "glow-sm": "0 0 15px rgba(79,116,255,0.35)",
+      },
+      backdropBlur: {
+        glass: "20px",
       },
     },
   },

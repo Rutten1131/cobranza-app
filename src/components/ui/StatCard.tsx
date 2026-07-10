@@ -23,13 +23,13 @@ export function StatCard({ title, value, variant, className }: StatCardProps) {
   return (
     <div
       className={cn(
-        "bg-card rounded-md p-4 shadow-card border border-border",
+        "card-float p-5",
         className
       )}
     >
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-3 mb-3">
         <span className="text-xl">{icons[variant]}</span>
-        <span className="text-2xl font-bold font-display text-text-main">
+        <span className={cn("text-3xl font-bold font-display", colors[variant])}>
           {value}
         </span>
       </div>

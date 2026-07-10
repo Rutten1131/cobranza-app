@@ -7,10 +7,10 @@ interface StatusBadgeProps {
 
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const styles = {
-    pending: "bg-surface text-text-sub border-border",
-    paid: "bg-accent/10 text-accent border-accent/20",
-    overdue: "bg-danger/10 text-danger border-danger/20",
-    today: "bg-warning/10 text-warning border-warning/20",
+    pending: "bg-surface-card text-text-sub border-glass",
+    paid: "bg-accent/20 text-accent border-accent/30",
+    overdue: "bg-danger/20 text-danger border-danger/30",
+    today: "bg-warning/20 text-warning border-warning/30",
   };
 
   const labels = {

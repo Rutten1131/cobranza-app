@@ -15,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className="min-h-screen bg-surface">
+      <body className="min-h-screen bg-gradient-dark">
         {children}
         <ToastContainer />
       </body>

@@ -66,7 +66,14 @@ export default function AdminDashboard() {
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState<any | null>(null);
+  const [newPassword, setNewPassword] = useState("");
   const [updating, setUpdating] = useState(false);
+
+  // Delete confirmation states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<any | null>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!authLoading && user?.role !== "admin") {
@@ -164,6 +171,7 @@ export default function AdminDashboard() {
           whatsappSender: editingUser.whatsappSender,
           hasCobranzas: editingUser.hasCobranzas,
           hasHabitaciones: editingUser.hasHabitaciones,
+          password: newPassword || undefined,
         }),
       });
 
@@ -183,6 +191,42 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteClick = (u: User) => {
+    setUserToDelete(u);
+    setDeleteConfirmName("");
+    setShowDeleteModal(true);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    if (deleteConfirmName.toLowerCase() !== userToDelete.businessName?.toLowerCase()) {
+      showToast("El nombre no coincide. Escribe el nombre exacto del negocio para confirmar.", "error");
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/users/${userToDelete.id}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        showToast("Usuario eliminado correctamente", "success");
+        setShowDeleteModal(false);
+        setUserToDelete(null);
+        setDeleteConfirmName("");
+        fetchUsers();
+      } else {
+        const data = await res.json();
+        showToast(data.error || "Error al eliminar usuario", "error");
+      }
+    } catch {
+      showToast("Error de conexión", "error");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -195,13 +239,13 @@ export default function AdminDashboard() {
   const totalRecords = users.reduce((acc, u) => acc + u._count.records, 0);
 
   return (
-    <div className="min-h-screen bg-surface">
+    <div className="min-h-screen bg-gradient-dark">
       {/* Header */}
-      <header className="bg-card border-b border-border">
+      <header className="bg-background-secondary/80 backdrop-blur-md border-b border-glass sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-2xl">💰</span>
-            <span className="text-xl font-display font-bold text-text-main">
+            <span className="text-xl font-display font-bold text-white">
               CobrApp
             </span>
             <span className="text-small text-text-sub ml-2">Admin</span>
@@ -217,18 +261,18 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <main className="max-w-5xl mx-auto px-4 py-8">
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-card rounded-md p-4 shadow-card border border-border">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+          <div className="card-float p-5">
             <p className="text-small text-text-sub mb-1">Usuarios activos</p>
-            <p className="text-2xl font-bold text-text-main">{activeUsers}</p>
+            <p className="text-2xl font-bold text-white">{activeUsers}</p>
           </div>
-          <div className="bg-card rounded-md p-4 shadow-card border border-border">
+          <div className="card-float p-5">
             <p className="text-small text-text-sub mb-1">Total usuarios</p>
-            <p className="text-2xl font-bold text-text-main">{users.length}</p>
+            <p className="text-2xl font-bold text-white">{users.length}</p>
           </div>
-          <div className="bg-card rounded-md p-4 shadow-card border border-border">
+          <div className="card-float p-5">
             <p className="text-small text-text-sub mb-1">Total registros</p>
-            <p className="text-2xl font-bold text-text-main">{totalRecords}</p>
+            <p className="text-2xl font-bold text-white">{totalRecords}</p>
           </div>
         </div>
 
@@ -313,6 +357,13 @@ export default function AdminDashboard() {
                   >
                     {u.isActive ? "Desactivar" : "Activar"}
                   </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleDeleteClick(u)}
+                  >
+                    🗑️ Eliminar
+                  </Button>
                   </div>
                 </div>
               ))}
@@ -343,11 +394,11 @@ export default function AdminDashboard() {
           />
 
           <div>
-            <label className="block text-small font-medium text-text-main mb-1.5">
+            <label className="block text-small font-medium text-text-sub mb-2">
               Tipo de negocio
             </label>
             <select
-              className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-3 text-body bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-white"
               value={newUser.businessType}
               onChange={(e) =>
                 setNewUser({ ...newUser, businessType: e.target.value })
@@ -364,7 +415,7 @@ export default function AdminDashboard() {
           </div>
 
           <div>
-            <label className="block text-small font-medium text-text-main mb-1.5">
+            <label className="block text-small font-medium text-text-sub mb-2">
               Usuario
             </label>
             <div className="flex gap-2">
@@ -375,7 +426,7 @@ export default function AdminDashboard() {
                 onChange={(e) =>
                   setNewUser({ ...newUser, email: e.target.value })
                 }
-                className="flex-1 px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="flex-1 px-4 py-3 text-body bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-white"
                 required
               />
               <Button
@@ -390,7 +441,7 @@ export default function AdminDashboard() {
           </div>
 
           <div>
-            <label className="block text-small font-medium text-text-main mb-1.5">
+            <label className="block text-small font-medium text-text-sub mb-2">
               Contraseña
             </label>
             <div className="flex gap-2">
@@ -401,7 +452,7 @@ export default function AdminDashboard() {
                 onChange={(e) =>
                   setNewUser({ ...newUser, password: e.target.value })
                 }
-                className="flex-1 px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="flex-1 px-4 py-3 text-body bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-white"
                 required
               />
               <Button
@@ -424,15 +475,15 @@ export default function AdminDashboard() {
             }
           />
 
-          <div className="space-y-2 border-t border-border pt-4">
-            <span className="text-small font-semibold text-text-main block">Sistemas Activos Asignados</span>
+          <div className="space-y-2 border-t border-glass pt-4">
+            <span className="text-small font-semibold text-white block">Sistemas Activos Asignados</span>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 text-small text-text-sub select-none cursor-pointer">
                 <input
                   type="checkbox"
                   checked={newUser.hasCobranzas}
                   onChange={(e) => setNewUser({ ...newUser, hasCobranzas: e.target.checked })}
-                  className="rounded border-border text-primary focus:ring-primary w-4 h-4"
+                  className="rounded border-glass text-primary focus:ring-primary w-4 h-4"
                 />
                 <span>💰 Sistema de Cobranzas</span>
               </label>
@@ -441,7 +492,7 @@ export default function AdminDashboard() {
                   type="checkbox"
                   checked={newUser.hasHabitaciones}
                   onChange={(e) => setNewUser({ ...newUser, hasHabitaciones: e.target.checked })}
-                  className="rounded border-border text-primary focus:ring-primary w-4 h-4"
+                  className="rounded border-glass text-primary focus:ring-primary w-4 h-4"
                 />
                 <span>🏨 Sistema de Habitaciones</span>
               </label>
@@ -469,8 +520,9 @@ export default function AdminDashboard() {
         onClose={() => {
           setShowEditModal(false);
           setEditingUser(null);
+          setNewPassword("");
         }}
-        title="Configurar Sistemas de Usuario"
+        title="Configurar Usuario"
       >
         {editingUser && (
           <form onSubmit={handleEditUserSubmit} className="space-y-4">
@@ -482,11 +534,11 @@ export default function AdminDashboard() {
             />
 
             <div>
-              <label className="block text-small font-medium text-text-main mb-1.5">
+              <label className="block text-small font-medium text-text-sub mb-2">
                 Tipo de negocio
               </label>
               <select
-                className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-4 py-3 text-body bg-surface-card border border-glass rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-white"
                 value={editingUser.businessType || ""}
                 onChange={(e) => setEditingUser({ ...editingUser, businessType: e.target.value })}
                 required
@@ -507,15 +559,26 @@ export default function AdminDashboard() {
               onChange={(e) => setEditingUser({ ...editingUser, whatsappSender: e.target.value })}
             />
 
-            <div className="space-y-2 border-t border-border pt-4">
-              <span className="text-small font-semibold text-text-main block">Sistemas Activos Asignados</span>
+            <div className="border-t border-glass pt-4 mt-4">
+              <p className="text-small font-semibold text-white mb-3">Cambiar Contraseña</p>
+              <Input
+                label="Nueva contraseña (dejar vacío para no cambiar)"
+                type="password"
+                placeholder="Ingrese nueva contraseña"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2 border-t border-glass pt-4">
+              <span className="text-small font-semibold text-white block">Sistemas Activos Asignados</span>
               <div className="flex gap-4">
                 <label className="flex items-center gap-2 text-small text-text-sub select-none cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editingUser.hasCobranzas}
                     onChange={(e) => setEditingUser({ ...editingUser, hasCobranzas: e.target.checked })}
-                    className="rounded border-border text-primary focus:ring-primary w-4 h-4"
+                    className="rounded border-glass text-primary focus:ring-primary w-4 h-4"
                   />
                   <span>💰 Sistema de Cobranzas</span>
                 </label>
@@ -524,14 +587,14 @@ export default function AdminDashboard() {
                     type="checkbox"
                     checked={editingUser.hasHabitaciones}
                     onChange={(e) => setEditingUser({ ...editingUser, hasHabitaciones: e.target.checked })}
-                    className="rounded border-border text-primary focus:ring-primary w-4 h-4"
+                    className="rounded border-glass text-primary focus:ring-primary w-4 h-4"
                   />
                   <span>🏨 Sistema de Habitaciones</span>
                 </label>
               </div>
             </div>
 
-            <div className="flex justify-end gap-3 pt-4 border-t border-border">
+            <div className="flex justify-end gap-3 pt-4 border-t border-glass">
               <Button
                 type="button"
                 variant="secondary"
@@ -547,6 +610,68 @@ export default function AdminDashboard() {
               </Button>
             </div>
           </form>
+        )}
+      </Modal>
+
+      {/* Delete Confirmation Modal - Double Security */}
+      <Modal
+        isOpen={showDeleteModal}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setUserToDelete(null);
+          setDeleteConfirmName("");
+        }}
+        title="⚠️ Eliminar Usuario"
+      >
+        {userToDelete && (
+          <div className="space-y-4">
+            <div className="p-4 bg-danger/10 border border-danger/20 rounded-lg">
+              <p className="text-danger font-semibold mb-2">¡Esta acción es irreversible!</p>
+              <p className="text-small text-text-sub">
+                Se eliminará al usuario <strong className="text-white">{userToDelete.businessName}</strong> y todos sus datos asociados.
+              </p>
+              <p className="text-small text-text-sub mt-2">
+                {userToDelete._count.clients} clientes y {userToDelete._count.records} registros serán eliminados permanentemente.
+              </p>
+            </div>
+
+            <div className="p-3 bg-surface-card rounded-lg border border-glass">
+              <p className="text-small text-text-sub mb-2">
+                Para confirmar, escribe el nombre del negocio exactamente:
+              </p>
+              <p className="text-white font-bold text-lg">{userToDelete.businessName}</p>
+            </div>
+
+            <Input
+              label="Confirmar nombre del negocio"
+              type="text"
+              placeholder={userToDelete.businessName}
+              value={deleteConfirmName}
+              onChange={(e) => setDeleteConfirmName(e.target.value)}
+            />
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-glass">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setUserToDelete(null);
+                  setDeleteConfirmName("");
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                variant="danger"
+                onClick={handleDeleteUser}
+                disabled={deleting || deleteConfirmName.toLowerCase() !== userToDelete.businessName?.toLowerCase()}
+              >
+                {deleting ? "Eliminando..." : "Eliminar Usuario"}
+              </Button>
+            </div>
+          </div>
         )}
       </Modal>
     </div>
