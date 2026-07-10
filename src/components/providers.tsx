@@ -49,7 +49,8 @@ export function useAuth() {
     try {
       await fetch("/api/auth/[...nextauth]", { method: "DELETE" });
       setUser(null);
-      router.push("/login");
+      // Use window.location for hard navigation to ensure proper state reset
+      window.location.href = "/login";
     } catch (error) {
       console.error("Logout error:", error);
     }

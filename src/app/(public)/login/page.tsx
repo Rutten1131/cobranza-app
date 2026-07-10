@@ -38,11 +38,11 @@ export default function LoginPage() {
 
       showToast("¡Bienvenido!", "success");
 
-      // Redirect based on role
+      // Redirect based on role - use window.location for proper state reset
       if (result.user.role === "admin") {
-        router.push("/admin/dashboard");
+        window.location.href = "/admin/dashboard";
       } else {
-        router.push("/app/dashboard");
+        window.location.href = "/app/dashboard";
       }
     } catch {
       showToast("Error de conexión", "error");
