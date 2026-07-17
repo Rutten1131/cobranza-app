@@ -87,12 +87,20 @@ export async function GET(req: NextRequest) {
         if (resolved) cleanNumber = resolved;
       }
 
-      // Update DB with the connected number
+      // Update DB with the connected number and set webhook
       if (cleanNumber) {
         await prisma.user.update({
           where: { id: auth.userId },
           data: { whatsappSender: cleanNumber },
         });
+      }
+
+      // Verify webhook is registered on success
+      try {
+        const { configureEvolutionWebhook } = await import("@/lib/evolution");
+        await configureEvolutionWebhook(instanceName);
+      } catch (e) {
+        console.warn("[WhatsApp API] Failed to configure webhook on check:", e);
       }
 
       return NextResponse.json({ 

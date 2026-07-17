@@ -20,21 +20,30 @@ export async function GET(req: NextRequest) {
 
     // Auto-resolve whatsappSender if it's missing or not a valid phone number
     const isValidPhone = user.whatsappSender && /^\d{7,15}$/.test(user.whatsappSender);
-    if (!isValidPhone && user.evolutionInstance) {
+    if (user.evolutionInstance) {
       try {
-        const { getConnectedNumber } = await import("@/lib/evolution");
-        const cleanNumber = await getConnectedNumber(user.evolutionInstance);
-        if (cleanNumber) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { whatsappSender: cleanNumber },
-          });
-          // Refresh user object
-          user = await prisma.user.findFirst({ where: { id: auth.userId, hasBarberia: true } }) || user;
-          console.log("[Barber API] Auto-resolved whatsappSender to:", cleanNumber);
+        const { getConnectedNumber, configureEvolutionWebhook } = await import("@/lib/evolution");
+        
+        // Auto-resolve number if invalid
+        if (!isValidPhone) {
+          const cleanNumber = await getConnectedNumber(user.evolutionInstance);
+          if (cleanNumber) {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { whatsappSender: cleanNumber },
+            });
+            // Refresh user object
+            user = await prisma.user.findFirst({ where: { id: auth.userId, hasBarberia: true } }) || user;
+            console.log("[Barber API] Auto-resolved whatsappSender to:", cleanNumber);
+          }
+        }
+        
+        // Force register/verify webhook connection
+        if (user.evolutionInstance) {
+          await configureEvolutionWebhook(user.evolutionInstance);
         }
       } catch (e) {
-        console.warn("[Barber API] Could not auto-resolve whatsappSender:", e);
+        console.warn("[Barber API] Error in auto-resolve or webhook set:", e);
       }
     }
 

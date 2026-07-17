@@ -2,6 +2,37 @@
 const EVOLUTION_API_URL = process.env.EVOLUTION_API_URL || "http://178.238.238.158:8080";
 const EVOLUTION_API_KEY = process.env.EVOLUTION_API_KEY || "";
 
+// Configure webhook for an instance automatically
+export async function configureEvolutionWebhook(instanceName: string): Promise<{ success: boolean; error?: string }> {
+  const webhookUrl = "https://cobranza-app-ochre.vercel.app/api/whatsapp/webhook";
+  console.log(`[Evolution] Setting webhook for ${instanceName} to ${webhookUrl}`);
+  try {
+    const response = await fetch(`${EVOLUTION_API_URL}/webhook/set/${instanceName}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": EVOLUTION_API_KEY,
+      },
+      body: JSON.stringify({
+        enabled: true,
+        url: webhookUrl,
+        byEvents: false,
+        base64: false,
+        events: [
+          "MESSAGES_UPSERT"
+        ]
+      }),
+    });
+
+    const text = await response.text();
+    console.log("[Evolution] Set webhook response:", response.status, text.substring(0, 300));
+    return { success: response.ok };
+  } catch (error) {
+    console.error("[Evolution] Error setting webhook:", error);
+    return { success: false, error: String(error) };
+  }
+}
+
 // Create a new Evolution API instance for a user
 export async function createEvolutionInstance(instanceName: string): Promise<{ success: boolean; error?: string }> {
   console.log("[Evolution] Creating instance:", instanceName);
@@ -25,12 +56,16 @@ export async function createEvolutionInstance(instanceName: string): Promise<{ s
     if (!response.ok) {
       if (response.status === 409) {
         console.log("[Evolution] Instance already exists, treating as success");
+        // Ensure webhook is always configured even if instance already existed
+        await configureEvolutionWebhook(instanceName);
         return { success: true };
       }
       console.error("[Evolution] API error creating instance:", text);
       return { success: false, error: text };
     }
 
+    // Configure the webhook automatically for the new instance
+    await configureEvolutionWebhook(instanceName);
     return { success: true };
   } catch (error) {
     console.error("[Evolution] Error creating instance:", error);
