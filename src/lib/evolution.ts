@@ -14,13 +14,15 @@ export async function configureEvolutionWebhook(instanceName: string): Promise<{
         "apikey": EVOLUTION_API_KEY,
       },
       body: JSON.stringify({
-        enabled: true,
-        url: webhookUrl,
-        byEvents: false,
-        base64: false,
-        events: [
-          "MESSAGES_UPSERT"
-        ]
+        webhook: {
+          enabled: true,
+          url: webhookUrl,
+          byEvents: false,
+          base64: false,
+          events: [
+            "MESSAGES_UPSERT"
+          ]
+        }
       }),
     });
 
