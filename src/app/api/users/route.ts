@@ -23,6 +23,7 @@ export async function GET(req: NextRequest) {
         isActive: true,
         hasCobranzas: true,
         hasHabitaciones: true,
+        hasBarberia: true,
         createdAt: true,
         _count: {
           select: { records: true, clients: true },
@@ -65,6 +66,7 @@ export async function POST(req: NextRequest) {
     // Leer valores directamente del body para no alterar el esquema Zod general
     const hasCobranzas = body.hasCobranzas !== undefined ? Boolean(body.hasCobranzas) : true;
     const hasHabitaciones = body.hasHabitaciones !== undefined ? Boolean(body.hasHabitaciones) : false;
+    const hasBarberia = body.hasBarberia !== undefined ? Boolean(body.hasBarberia) : false;
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -95,6 +97,7 @@ export async function POST(req: NextRequest) {
         isActive: true,
         hasCobranzas,
         hasHabitaciones,
+        hasBarberia,
       },
       select: {
         id: true,
@@ -105,6 +108,7 @@ export async function POST(req: NextRequest) {
         evolutionInstance: true,
         hasCobranzas: true,
         hasHabitaciones: true,
+        hasBarberia: true,
         createdAt: true,
       },
     });

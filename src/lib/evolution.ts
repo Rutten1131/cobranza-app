@@ -39,7 +39,7 @@ export async function createEvolutionInstance(instanceName: string): Promise<{ s
 }
 
 // Get connection status
-export async function getEvolutionStatus(instanceName: string): Promise<{ status: string; is404?: boolean; error?: string }> {
+export async function getEvolutionStatus(instanceName: string): Promise<{ status: string; owner?: string | null; is404?: boolean; error?: string }> {
   console.log("[Evolution] Getting status for:", instanceName);
   try {
     const response = await fetch(`${EVOLUTION_API_URL}/instance/connectionState/${instanceName}`, {
@@ -62,11 +62,56 @@ export async function getEvolutionStatus(instanceName: string): Promise<{ status
 
     const data = JSON.parse(text);
     const state = data.state || data.instance?.state || "unknown";
-    console.log("[Evolution] Parsed state:", state);
-    return { status: state };
+    const owner = data.owner || data.instance?.owner || null;
+    console.log("[Evolution] Parsed state:", state, "owner:", owner);
+    return { status: state, owner };
   } catch (error) {
     console.error("[Evolution] Error getting status:", error);
     return { status: "error", error: String(error) };
+  }
+}
+
+// Get the connected phone number for an instance by querying fetchInstances
+export async function getConnectedNumber(instanceName: string): Promise<string | null> {
+  console.log("[Evolution] Getting connected number for:", instanceName);
+  try {
+    const response = await fetch(`${EVOLUTION_API_URL}/instance/fetchInstances?instanceName=${instanceName}`, {
+      method: "GET",
+      headers: {
+        "apikey": EVOLUTION_API_KEY,
+      },
+    });
+
+    const text = await response.text();
+    console.log("[Evolution] fetchInstances response:", response.status, text.substring(0, 500));
+
+    if (!response.ok) return null;
+
+    const data = JSON.parse(text);
+    // Response can be an array or single object
+    const instance = Array.isArray(data) ? data[0] : data;
+    
+    // Try multiple known paths for the owner/number
+    const ownerRaw = instance?.instance?.owner 
+      || instance?.owner 
+      || instance?.instance?.ownerJid
+      || instance?.ownerJid
+      || instance?.instance?.wuid
+      || instance?.wuid
+      || null;
+
+    if (!ownerRaw) {
+      console.log("[Evolution] No owner found in fetchInstances response");
+      return null;
+    }
+
+    // Clean: "51912345678@s.whatsapp.net" -> "51912345678"
+    const cleanNumber = String(ownerRaw).split("@")[0].replace(/[^\d]/g, "");
+    console.log("[Evolution] Extracted connected number:", cleanNumber);
+    return cleanNumber || null;
+  } catch (error) {
+    console.error("[Evolution] Error getting connected number:", error);
+    return null;
   }
 }
 

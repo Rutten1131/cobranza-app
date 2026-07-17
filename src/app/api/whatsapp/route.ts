@@ -75,9 +75,30 @@ export async function GET(req: NextRequest) {
 
     // If connected
     if (statusResult.status === "open" || statusResult.status === "connected") {
+      let cleanNumber = "";
+      if (statusResult.owner) {
+        cleanNumber = statusResult.owner.split("@")[0].replace(/[^\d]/g, "");
+      }
+      
+      // Fallback: if connectionState didn't return owner, use fetchInstances
+      if (!cleanNumber) {
+        const { getConnectedNumber } = await import("@/lib/evolution");
+        const resolved = await getConnectedNumber(instanceName);
+        if (resolved) cleanNumber = resolved;
+      }
+
+      // Update DB with the connected number
+      if (cleanNumber) {
+        await prisma.user.update({
+          where: { id: auth.userId },
+          data: { whatsappSender: cleanNumber },
+        });
+      }
+
       return NextResponse.json({ 
         status: "connected",
-        instanceName 
+        instanceName,
+        whatsappSender: cleanNumber || undefined
       });
     }
 

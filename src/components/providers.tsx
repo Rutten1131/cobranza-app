@@ -13,6 +13,7 @@ interface User {
   defaultReminderMessage?: string;
   hasCobranzas?: boolean;
   hasHabitaciones?: boolean;
+  hasBarberia?: boolean;
 }
 
 export function useAuth() {

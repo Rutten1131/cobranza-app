@@ -531,18 +531,21 @@ export default function HabitacionesPage() {
             <span className="text-xl font-display font-bold text-text-main">
               {user?.businessName || "Hotel Control"}
             </span>
-            {user?.hasCobranzas && user?.hasHabitaciones && (
+            {(Number(user?.hasCobranzas) + Number(user?.hasHabitaciones) + Number(user?.hasBarberia) > 1) && (
               <select
                 value="habitaciones"
                 onChange={(e) => {
                   if (e.target.value === "cobranzas") {
                     router.push("/app/dashboard");
+                  } else if (e.target.value === "barberia") {
+                    router.push("/app/barberia");
                   }
                 }}
                 className="ml-2 text-xs font-semibold px-2 py-1 rounded-sm border border-primary/30 bg-primary/5 text-primary focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-colors"
               >
-                <option value="cobranzas">💰 Cobranzas</option>
-                <option value="habitaciones">🏨 Habitaciones</option>
+                {user?.hasCobranzas && <option value="cobranzas">💰 Cobranzas</option>}
+                {user?.hasHabitaciones && <option value="habitaciones">🏨 Habitaciones</option>}
+                {user?.hasBarberia && <option value="barberia">✂️ Barbería</option>}
               </select>
             )}
           </div>
