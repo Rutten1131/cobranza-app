@@ -335,6 +335,30 @@ export async function sendWhatsAppMessage(
     console.log("[Evolution] Send message response:", response.status, text.substring(0, 300));
 
     if (!response.ok) {
+      // Retry once after 1.5 seconds if Evolution API throws a 500 error (temporary socket find error during init)
+      if (response.status === 500 && text.includes("find")) {
+        console.warn("[Evolution] Temporary send failure (500). Retrying in 1.5 seconds...");
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const retryResponse = await fetch(`${EVOLUTION_API_URL}/message/sendText/${instanceName}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": EVOLUTION_API_KEY,
+          },
+          body: JSON.stringify({
+            number: cleanPhone,
+            text: message,
+          }),
+        });
+        const retryText = await retryResponse.text();
+        if (retryResponse.ok) {
+          console.log("[Evolution] Retry succeeded!");
+          return { success: true };
+        }
+        console.error("[Evolution] Retry failed:", retryText);
+        return { success: false, error: `${retryResponse.status}: ${retryText}` };
+      }
+
       console.error("[Evolution] Failed to send message:", text);
       return { success: false, error: `${response.status}: ${text}` };
     }

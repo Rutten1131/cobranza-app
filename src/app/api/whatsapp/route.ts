@@ -110,9 +110,31 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // If "connecting" (there is an active QR) -> get it without logout
+    // If "connecting" (there is an active QR) -> check if it's already connected first
     if (statusResult.status === "connecting") {
-      console.log("[WhatsApp API] Status is connecting, getting existing QR...");
+      console.log("[WhatsApp API] Status is connecting, checking if already connected...");
+      const { getConnectedNumber, configureEvolutionWebhook } = await import("@/lib/evolution");
+      const cleanNumber = await getConnectedNumber(instanceName);
+      
+      if (cleanNumber) {
+        // If we can fetch a number, the session is actually open/restored
+        await prisma.user.update({
+          where: { id: auth.userId },
+          data: { whatsappSender: cleanNumber },
+        });
+        try {
+          await configureEvolutionWebhook(instanceName);
+        } catch (e) {
+          console.warn("[WhatsApp API] Failed to configure webhook on connecting-recovered check:", e);
+        }
+        return NextResponse.json({ 
+          status: "connected",
+          instanceName,
+          whatsappSender: cleanNumber
+        });
+      }
+
+      console.log("[WhatsApp API] Not connected, getting existing QR...");
       const qrResult = await getExistingQR(instanceName);
       return NextResponse.json({
         status: "disconnected",
