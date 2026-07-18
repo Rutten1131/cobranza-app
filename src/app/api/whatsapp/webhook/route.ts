@@ -148,6 +148,8 @@ export async function POST(req: NextRequest) {
           data: {
             cutsCount: { increment: 1 },
             lastVisit: new Date(),
+            lastCutAt: new Date(),
+            reviewRequestSent: false,
           },
         });
 

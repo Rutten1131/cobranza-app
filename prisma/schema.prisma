@@ -216,6 +216,8 @@ model BarberCustomer {
   cutsCount   Int      @default(0) @map("cuts_count")
   lastVisit   DateTime @default(now()) @map("last_visit")
   hasReviewed Boolean  @default(false) @map("has_reviewed")
+  reviewRequestSent Boolean @default(false) @map("review_request_sent")
+  lastCutAt   DateTime? @map("last_cut_at")
   createdAt   DateTime @default(now()) @map("created_at")
 
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
