@@ -255,19 +255,10 @@ export async function POST(req: NextRequest) {
     });
 
     if (!codeObj) {
-      // Check if it looks like a code or general text
-      let welcomeMsg = `¡Hola! Bienvenido al Sistema de Fidelización de *${barberOwner.businessName || "nuestra Barbería"}*. 💈\n\n`;
-      if (isNewCustomer) {
-        welcomeMsg += `🎁 *¡Te damos la bienvenida con un regalo!* Por ser tu primera vez, te regalamos tus primeros *2 sellos* gratis.\n\n`;
-      }
-      welcomeMsg += `Por favor, escribe el código de 4 dígitos que te entregó la caja para registrar tu corte de hoy.`;
-      
-      await sendWhatsAppMessage(
-        instanceName,
-        whatsappNumber,
-        welcomeMsg
-      );
-      return NextResponse.json({ success: true });
+      // The message is not a valid active code, and there are no active validation/rating flows.
+      // Silently ignore to avoid responding to generic messages or thanks.
+      console.log(`[WhatsApp Webhook] Message ignored: "${messageText}" is not a valid validation code.`);
+      return NextResponse.json({ success: true, message: "Ignored generic message" });
     }
 
     // Code is valid! Block code reuse
