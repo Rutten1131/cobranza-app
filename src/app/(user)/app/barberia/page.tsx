@@ -544,7 +544,7 @@ export default function BarberiaDashboard() {
                 <span className="text-xs uppercase font-bold text-text-sub tracking-wider">QR Para Cliente</span>
                 {whatsappSender ? (
                   <>
-                    <div className="bg-white p-2 rounded-lg border border-slate-700">
+                    <div className="bg-surface-card p-2 rounded-lg border border-slate-700">
                       <img 
                         src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`https://wa.me/${whatsappSender.replace(/\+/g, "").replace(/\s/g, "")}?text=${activeCode}`)}`}
                         alt="QR de escaneo rápido de cliente" 
@@ -1182,7 +1182,7 @@ export default function BarberiaDashboard() {
                 <div className="mt-5 border-t border-glass pt-4">
                   {whatsappQR ? (
                     <div className="flex flex-col items-center justify-center p-4 bg-slate-950/40 rounded-lg border border-glass">
-                      <div className="bg-white p-3 rounded-lg shadow-sm border border-slate-700 mb-3">
+                      <div className="bg-surface-card p-3 rounded-lg shadow-sm border border-slate-700 mb-3">
                         <img src={whatsappQR} alt="WhatsApp QR Code" className="w-56 h-56 object-contain" />
                       </div>
                       <h4 className="font-semibold text-white text-sm mb-1">Escanea el código QR</h4>

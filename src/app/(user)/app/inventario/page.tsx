@@ -295,7 +295,7 @@ export default function InventarioPage() {
             placeholder="Buscar por nombre, SKU o descripción..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            className="flex-1 px-3 py-2 text-body bg-surface-card border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />
           <div className="flex gap-2">
             {(["all", "available", "out"] as const).map((f) => (
@@ -305,7 +305,7 @@ export default function InventarioPage() {
                 className={`px-3 py-2 text-small font-medium rounded-sm border transition-colors ${
                   stockFilter === f
                     ? "bg-primary text-white border-primary"
-                    : "bg-white text-text-sub border-border hover:border-primary"
+                    : "bg-surface-card text-text-sub border-border hover:border-primary"
                 }`}
               >
                 {f === "all" ? "Todos" : f === "available" ? "Disponible" : "Sin Stock"}

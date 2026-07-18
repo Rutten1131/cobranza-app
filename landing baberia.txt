@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>BarberOS — Tu barbería no necesita más clientes</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,800;9..144,900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --bg:#0a0807;
+    --bg-soft:#131110;
+    --bg-card:#1a1715;
+    --fg:#f3ece1;
+    --fg-dim:#a89e90;
+    --muted:#5c554c;
+    --accent:#d97644;
+    --accent-bright:#ec8a52;
+    --accent-deep:#a8501f;
+    --border:#2a2520;
+    --border-soft:#1f1c19;
+  }
+  *{cursor:none}
+  html,body{background:var(--bg);color:var(--fg);font-family:'Space Grotesk',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  .font-display{font-family:'Fraunces',serif;font-variation-settings:"opsz" 144,"SOFT" 50}
+  .font-mono{font-family:'JetBrains Mono',monospace}
+
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:200;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode:overlay;
+  }
+
+  .cursor-dot{position:fixed;width:6px;height:6px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .25s,height .25s,background .25s}
+  .cursor-ring{position:fixed;width:32px;height:32px;border:1px solid rgba(217,118,68,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .15s ease-out,width .25s,height .25s,border-color .25s}
+  .cursor-hover .cursor-dot{width:0;height:0}
+  .cursor-hover .cursor-ring{width:56px;height:56px;border-color:var(--accent);background:rgba(217,118,68,.08)}
+  @media(max-width:768px){*{cursor:auto}.cursor-dot,.cursor-ring{display:none}}
+
+  .reveal{opacity:0;transform:translateY(48px);transition:opacity 1.3s cubic-bezier(.22,1,.36,1),transform 1.3s cubic-bezier(.22,1,.36,1)}
+  .reveal.in{opacity:1;transform:translateY(0)}
+  .reveal-stagger > *{opacity:0;transform:translateY(32px);transition:opacity 1s cubic-bezier(.22,1,.36,1),transform 1s cubic-bezier(.22,1,.36,1)}
+  .reveal-stagger.in > *{opacity:1;transform:translateY(0)}
+  .reveal-stagger.in > *:nth-child(1){transition-delay:.1s}
+  .reveal-stagger.in > *:nth-child(2){transition-delay:.4s}
+  .reveal-stagger.in > *:nth-child(3){transition-delay:.7s}
+
+  .letterbox{position:relative}
+  .letterbox::before,.letterbox::after{content:'';position:absolute;left:0;right:0;height:48px;background:#000;z-index:5;pointer-events:none}
+  .letterbox::before{top:0}
+  .letterbox::after{bottom:0}
+  @media(max-width:768px){.letterbox::before,.letterbox::after{height:28px}}
+
+  @keyframes heroIn{from{opacity:0;filter:blur(12px);transform:translateY(24px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
+  .hero-in{opacity:0;animation:heroIn 1.8s cubic-bezier(.22,1,.36,1) forwards}
+
+  @keyframes blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+  .rec-dot{animation:blink 1.4s steps(1) infinite}
+
+  @keyframes scrollPulse{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(10px);opacity:1}}
+  .scroll-pulse{animation:scrollPulse 2.4s ease-in-out infinite}
+
+  @keyframes kenburns{0%{transform:scale(1.08) translate(0,0)}100%{transform:scale(1.18) translate(-1.5%,-1%)}}
+  .kenburns{animation:kenburns 20s ease-out forwards}
+
+  .num-marker{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:.72rem;letter-spacing:.3em;text-transform:uppercase;font-weight:500}
+
+  .btn-primary{background:var(--accent);color:#0a0807;font-weight:600;letter-spacing:-.01em;transition:all .35s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden}
+  .btn-primary::before{content:'';position:absolute;inset:0;background:var(--fg);transform:translateY(101%);transition:transform .45s cubic-bezier(.77,0,.175,1);z-index:0}
+  .btn-primary > *{position:relative;z-index:1}
+  .btn-primary:hover::before{transform:translateY(0)}
+  .btn-primary:hover{color:#0a0807}
+  .btn-ghost{border:1px solid var(--border);color:var(--fg);transition:all .35s}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:rgba(217,118,68,.04)}
+
+  .fixed-cta{position:fixed;bottom:24px;right:24px;z-index:80;opacity:0;transform:translateY(20px) scale(.95);transition:all .5s cubic-bezier(.22,1,.36,1);pointer-events:none}
+  .fixed-cta.show{opacity:1;transform:translateY(0) scale(1);pointer-events:auto}
+
+  .pregunta{transition:all .4s;position:relative}
+  .pregunta::before{content:'';position:absolute;left:0;top:50%;width:0;height:1px;background:var(--accent);transition:width .5s cubic-bezier(.77,0,.175,1);transform:translateY(-50%)}
+  .pregunta:hover{padding-left:48px;color:var(--accent)}
+  .pregunta:hover::before{width:32px}
+
+  .split-screen{display:grid;grid-template-columns:1fr 1fr;min-height:80vh}
+  @media(max-width:768px){.split-screen{grid-template-columns:1fr;min-height:auto}}
+
+  .objection-card{transition:all .5s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;background:var(--bg-soft);border:1px solid var(--border)}
+  .objection-card:hover{border-color:var(--accent);transform:translateY(-6px)}
+  .objection-card .play-orb{transition:all .5s cubic-bezier(.22,1,.36,1)}
+  .objection-card:hover .play-orb{background:var(--accent);color:#0a0807;transform:scale(1.15)}
+  .objection-card .video-preview{position:absolute;inset:0;background:linear-gradient(135deg,var(--bg-soft),var(--bg-card));opacity:0;transition:opacity .5s;display:flex;align-items:center;justify-content:center;padding:2rem;text-align:center}
+  .objection-card:hover .video-preview{opacity:1}
+  .objection-card:hover .objection-text{opacity:0}
+
+  .roadmap-step{position:relative;transition:all .5s}
+  .roadmap-step::before{content:'';position:absolute;left:8px;top:-24px;width:12px;height:12px;background:var(--bg);border:1px solid var(--border);border-radius:50%;transform:translateX(-50%);transition:all .4s}
+  .roadmap-step.active::before{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 6px rgba(217,118,68,.15)}
+  .roadmap-step:hover::before{background:var(--accent);border-color:var(--accent)}
+  @media(min-width:768px){.roadmap-step::before{left:50%}}
+
+  @keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .marquee-track{display:flex;animation:marquee 50s linear infinite;width:max-content;gap:4rem}
+
+  .section{padding:8rem 2rem}
+  @media(max-width:768px){.section{padding:5rem 1.5rem}}
+
+  ::-webkit-scrollbar{width:8px;background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+  ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+  ::selection{background:var(--accent);color:var(--bg)}
+
+  .vignette{position:relative}
+  .vignette::after{content:'';position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 180px 40px rgba(0,0,0,.9)}
+
+  h1,h2,h3,h4{letter-spacing:-.02em;line-height:1.05}
+  .text-balance{text-wrap:balance}
+
+  .glow-accent{box-shadow:0 0 60px -10px rgba(217,118,68,.4)}
+  .div-line{height:1px;background:linear-gradient(to right,transparent,var(--border) 20%,var(--border) 80%,transparent)}
+
+  @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(217,118,68,.6)}100%{box-shadow:0 0 0 24px rgba(217,118,68,0)}}
+  .pulse-ring{animation:pulseRing 2s ease-out infinite}
+
+  .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg-soft);border:1px solid var(--accent);color:var(--fg);padding:1rem 1.5rem;border-radius:6px;z-index:300;opacity:0;transition:all .4s;pointer-events:none;max-width:90vw}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .story-scroll{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;gap:0;scrollbar-width:none;-ms-overflow-style:none}
+  .story-scroll::-webkit-scrollbar{display:none}
+  .story-slide{min-width:100vw;height:80vh;scroll-snap-align:center;position:relative;display:flex;align-items:center;justify-content:center;padding:2rem}
+  @media(min-width:768px){.story-slide{min-width:100vw;padding:4rem}}
+  .story-slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+  .story-slide .overlay{position:absolute;inset:0;background:linear-gradient(to bottom, rgba(10,8,7,0.4), rgba(10,8,7,0.8));z-index:1}
+  .story-slide .content{position:relative;z-index:2;text-align:center;max-width:64rem}
+</style>
+</head>
+<body class="grain">
+
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="toast" id="toast"></div>
+
+<!-- Top bar -->
+<header class="fixed top-0 left-0 right-0 z-50 px-6 py-5 flex items-center justify-between mix-blend-difference">
+  <a href="#" class="flex items-center gap-2 text-white">
+    <div class="w-7 h-7 border border-white/80 flex items-center justify-center">
+      <span class="font-display text-sm font-bold">B</span>
+    </div>
+    <span class="font-mono text-xs tracking-[0.25em] uppercase">BarberOS</span>
+  </a>
+  <nav class="hidden md:flex items-center gap-10 text-xs font-mono tracking-[0.2em] uppercase text-white/80">
+    <a href="#problema" class="hover:text-white transition">El problema</a>
+    <a href="#como" class="hover:text-white transition">Cómo funciona</a>
+    <a href="#por-que" class="hover:text-white transition">Por qué funciona</a>
+    <a href="#fundadores" class="hover:text-white transition">Fundadores</a>
+  </nav>
+  <a href="#cta-final" class="text-xs font-mono tracking-[0.2em] uppercase text-white border border-white/40 px-4 py-2 hover:bg-white hover:text-black transition">Reservar plaza</a>
+</header>
+
+<!-- ============ 00 — HERO ============ -->
+<section class="relative h-screen w-full overflow-hidden letterbox" id="hero">
+  <div class="absolute inset-0">
+    <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=85&w=2400&auto=format&fit=crop" alt="Barbería" class="w-full h-full object-cover kenburns" />
+    <div class="absolute inset-0 bg-gradient-to-b from-black/70 via-black/30 to-black/90"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40"></div>
+  </div>
+
+  <div class="absolute top-20 left-6 md:top-24 md:left-12 z-10 flex items-center gap-3 text-white/70 text-[10px] font-mono tracking-[0.25em]">
+    <span class="w-2 h-2 bg-red-500 rec-dot rounded-full"></span>
+    <span>REC · 24FPS · ESC 01</span>
+  </div>
+
+  <div class="relative z-10 h-full flex flex-col items-center justify-center px-6 text-center text-white">
+    <p class="hero-in font-mono text-[11px] tracking-[0.4em] uppercase text-white/70 mb-8" style="animation-delay:.2s">
+      Una historia sobre barberías
+    </p>
+
+    <h1 class="hero-in font-display font-light text-[clamp(2.5rem,7vw,7rem)] leading-[0.95] max-w-5xl text-balance" style="animation-delay:.5s">
+      Tu barbería no necesita
+      <span class="block italic font-normal text-[#ec8a52]">más clientes.</span>
+    </h1>
+
+    <p class="hero-in mt-10 max-w-xl text-base md:text-lg text-white/80 leading-relaxed font-light" style="animation-delay:1.2s">
+      Necesita que los que ya confían en ti vuelvan una y otra vez. Mientras tú haces el siguiente corte, BarberOS trabaja para que el anterior regrese.
+    </p>
+
+    <div class="hero-in mt-12 flex flex-col sm:flex-row items-center gap-4" style="animation-delay:1.8s">
+      <a href="#problema" class="btn-primary px-8 py-4 text-sm font-mono tracking-[0.15em] uppercase flex items-center gap-3">
+        <span>Quiero ver cómo funciona</span>
+        <i class="fa-solid fa-arrow-right text-xs"></i>
+      </a>
+      <a href="#video-founder" class="btn-ghost px-8 py-4 text-sm font-mono tracking-[0.15em] uppercase flex items-center gap-3 text-white border-white/40 hover:border-white hover:text-white">
+        <i class="fa-solid fa-play text-[10px]"></i>
+        <span>Ver demostración · 90s</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="absolute bottom-16 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3 text-white/60">
+    <span class="font-mono text-[10px] tracking-[0.3em] uppercase">Scroll</span>
+    <div class="w-px h-12 bg-white/30 scroll-pulse"></div>
+  </div>
+</section>
+
+<!-- ============ 00.5 — LA VERDAD (Transición Psicológica) ============ -->
+<section class="bg-black h-screen flex flex-col items-center justify-center px-6 text-center border-t border-[var(--border)]">
+  <div class="reveal-stagger space-y-12 md:space-y-20">
+    <h2 class="font-display font-light text-[clamp(2rem,6vw,5rem)] leading-[1.05] text-balance">
+      No necesitas más clientes.
+    </h2>
+    <h2 class="font-display font-light text-[clamp(2.5rem,7vw,6rem)] leading-[1.05] text-balance text-[var(--accent)] italic">
+      Necesitas que vuelvan.
+    </h2>
+    <h2 class="font-display font-light text-[clamp(1.5rem,4vw,3rem)] leading-[1.05] text-balance text-[var(--fg-dim)]">
+      BarberOS fue diseñado para eso.
+    </h2>
+  </div>
+</section>
+
+<!-- ============ Marquee ============ -->
+<section class="py-6 border-y border-[var(--border)] overflow-hidden bg-[var(--bg)]">
+  <div class="marquee-track text-[var(--fg-dim)] font-display italic text-2xl">
+    <span class="flex items-center gap-12">
+      <span>Cliente entra.</span><span class="text-[var(--accent)]">/</span>
+      <span>Se corta.</span><span class="text-[var(--accent)]">/</span>
+      <span>Se ríe.</span><span class="text-[var(--accent)]">/</span>
+      <span>Sale.</span><span class="text-[var(--accent)]">/</span>
+      <span>Silencio.</span><span class="text-[var(--accent)]">/</span>
+      <span>WhatsApp.</span><span class="text-[var(--accent)]">/</span>
+      <span>Sonríe.</span><span class="text-[var(--accent)]">/</span>
+      <span>Tres semanas.</span><span class="text-[var(--accent)]">/</span>
+      <span>Regresa.</span><span class="text-[var(--accent)]">/</span>
+    </span>
+    <span class="flex items-center gap-12">
+      <span>Cliente entra.</span><span class="text-[var(--accent)]">/</span>
+      <span>Se corta.</span><span class="text-[var(--accent)]">/</span>
+      <span>Se ríe.</span><span class="text-[var(--accent)]">/</span>
+      <span>Sale.</span><span class="text-[var(--accent)]">/</span>
+      <span>Silencio.</span><span class="text-[var(--accent)]">/</span>
+      <span>WhatsApp.</span><span class="text-[var(--accent)]">/</span>
+      <span>Sonríe.</span><span class="text-[var(--accent)]">/</span>
+      <span>Tres semanas.</span><span class="text-[var(--accent)]">/</span>
+      <span>Regresa.</span><span class="text-[var(--accent)]">/</span>
+    </span>
+  </div>
+</section>
+
+<!-- ============ 01 — EL PROBLEMA ============ -->
+<section class="section" id="problema">
+  <div class="max-w-6xl mx-auto">
+    <div class="reveal flex items-center gap-4 mb-16">
+      <span class="num-marker">01 / El problema</span>
+      <div class="flex-1 h-px bg-[var(--border)]"></div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-16 items-center">
+      <div class="reveal">
+        <h2 class="font-display font-light text-[clamp(2rem,4.5vw,4rem)] leading-[1.05] text-balance">
+          Mientras tus clientes salen por esa puerta...
+          <span class="block italic text-[var(--accent)] mt-2">empiezas a perder dinero.</span>
+        </h2>
+
+        <div class="mt-10 space-y-5 text-[var(--fg-dim)] text-lg leading-relaxed font-light max-w-md">
+          <p>No porque cortes mal.</p>
+          <p>No porque no sepas fidelizar.</p>
+          <p class="text-[var(--fg)] text-xl font-normal">Sino porque nadie hace seguimiento.</p>
+        </div>
+
+        <div class="mt-12">
+          <a href="#creencia" class="btn-primary inline-flex items-center gap-3 px-8 py-4 text-sm font-mono tracking-[0.15em] uppercase">
+            <span>Descubre si BarberOS es para tu barbería</span>
+            <i class="fa-solid fa-arrow-right text-xs"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="reveal relative">
+        <div class="aspect-[4/5] relative overflow-hidden vignette">
+          <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?q=85&w=1200&auto=format&fit=crop" alt="Barbero cortando" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+          <div class="absolute inset-0 flex items-center justify-center">
+            <button class="group relative" data-cursor="hover">
+              <div class="w-20 h-20 rounded-full border border-white/60 flex items-center justify-center backdrop-blur-sm bg-black/20 group-hover:bg-[var(--accent)] group-hover:border-[var(--accent)] transition-all duration-500">
+                <i class="fa-solid fa-play text-white text-xl ml-1"></i>
+              </div>
+              <div class="absolute inset-0 rounded-full border border-white/30 group-hover:scale-125 transition-transform duration-700"></div>
+            </button>
+          </div>
+          <div class="absolute bottom-6 left-6 right-6 flex items-end justify-between text-white">
+            <div>
+              <p class="font-mono text-[10px] tracking-[0.25em] uppercase text-white/60 mb-1">Take 01</p>
+              <p class="font-display text-2xl">"Lo descubrí en mi propia barbería."</p>
+            </div>
+          </div>
+        </div>
+        <div class="absolute -top-3 -right-3 font-mono text-[10px] tracking-[0.25em] text-[var(--accent)]">● REC</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 — ROMPER LA CREENCIA Y EL ESLOGAN ============ -->
+<section class="section bg-[var(--bg-soft)] py-0" id="creencia">
+  <div class="split-screen">
+    <div class="reveal p-12 md:p-20 border-r border-[var(--border)] flex flex-col justify-center min-h-[80vh]">
+      <div class="flex items-center gap-4 mb-12">
+        <span class="num-marker">02 / Romper la creencia</span>
+      </div>
+
+      <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--muted)] mb-8">Lo que todos venden</p>
+      <ul class="space-y-5 font-display text-3xl md:text-4xl font-light text-[var(--fg-dim)]">
+        <li class="flex items-center gap-4"><span class="text-[var(--muted)] text-lg font-mono">01</span><span>Tarjetas digitales</span></li>
+        <li class="flex items-center gap-4"><span class="text-[var(--muted)] text-lg font-mono">02</span><span>QR</span></li>
+        <li class="flex items-center gap-4"><span class="text-[var(--muted)] text-lg font-mono">03</span><span>Sellos</span></li>
+        <li class="flex items-center gap-4"><span class="text-[var(--muted)] text-lg font-mono">04</span><span>Apps</span></li>
+        <li class="flex items-center gap-4"><span class="text-[var(--muted)] text-lg font-mono">05</span><span>Descuentos</span></li>
+      </ul>
+    </div>
+
+    <div class="reveal p-12 md:p-20 flex flex-col justify-center min-h-[80vh] bg-[var(--bg)]">
+      <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--accent)] mb-8">Lo que hace BarberOS</p>
+      <ul class="space-y-5 font-display text-3xl md:text-4xl font-light">
+        <li class="flex items-center gap-4"><i class="fa-solid fa-check text-[var(--accent)] text-lg"></i><span>Clientes que regresan.</span></li>
+        <li class="flex items-center gap-4"><i class="fa-solid fa-check text-[var(--accent)] text-lg"></i><span>Más reseñas.</span></li>
+        <li class="flex items-center gap-4"><i class="fa-solid fa-check text-[var(--accent)] text-lg"></i><span>Información.</span></li>
+        <li class="flex items-center gap-4"><i class="fa-solid fa-check text-[var(--accent)] text-lg"></i><span>Decisiones.</span></li>
+        <li class="flex items-center gap-4"><i class="fa-solid fa-check text-[var(--accent)] text-lg"></i><span>Crecimiento.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="py-32 px-6 text-center border-t border-[var(--border)]">
+    <div class="reveal max-w-5xl mx-auto">
+      <p class="font-display text-[clamp(1.8rem,4vw,3.5rem)] font-light italic leading-[1.1] text-balance">
+        No digitalizamos una tarjeta.
+      </p>
+      <p class="font-display text-[clamp(2.2rem,5.5vw,5rem)] font-light leading-[1.05] mt-6 text-balance">
+        Digitalizamos la <span class="text-[var(--accent)] italic">relación</span> con tus clientes.
+      </p>
+    </div>
+
+    <div class="reveal mt-40 pt-20 border-t border-[var(--border)] max-w-5xl mx-auto">
+      <p class="font-display text-[clamp(2rem,5vw,4.5rem)] leading-[1.1] text-balance font-light">
+        Tu trabajo termina cuando acaba el corte.
+      </p>
+      <p class="font-display text-[clamp(2rem,5.5vw,5rem)] leading-[1.1] text-balance font-light italic text-[var(--accent)] mt-4">
+        El nuestro empieza ahí.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 03 — CÓMO FUNCIONA ============ -->
+<section class="section" id="como">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal flex items-center gap-4 mb-20">
+      <span class="num-marker">03 / Cómo funciona</span>
+      <div class="flex-1 h-px bg-[var(--border)]"></div>
+    </div>
+
+    <div class="reveal mb-20 max-w-3xl">
+      <h2 class="font-display font-light text-[clamp(2rem,4vw,3.5rem)] leading-tight text-balance">
+        Tres pasos. Sin descargar nada. Sin complicaciones.
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+      <div class="reveal group">
+        <div class="aspect-[3/4] relative overflow-hidden vignette mb-6">
+          <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=85&w=900&auto=format&fit=crop" alt="Cliente en espejo" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+          <div class="absolute bottom-6 left-6 right-6 text-white">
+            <p class="font-mono text-[10px] tracking-[0.25em] uppercase text-white/60">Paso 01</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="font-mono text-[var(--accent)] text-sm mt-1">→</span>
+          <div>
+            <h3 class="font-display text-2xl mb-2">Termina un corte.</h3>
+            <p class="text-[var(--fg-dim)] text-sm leading-relaxed">El cliente se mira al espejo. Sonríe. No mira el celular. Disfruta el momento.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal group md:translate-y-12">
+        <div class="aspect-[3/4] relative overflow-hidden vignette mb-6">
+          <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?q=85&w=900&auto=format&fit=crop" alt="Barbero tocando tablet" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+          <div class="absolute bottom-6 left-6 right-6 text-white">
+            <p class="font-mono text-[10px] tracking-[0.25em] uppercase text-white/60">Paso 02</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="font-mono text-[var(--accent)] text-sm mt-1">→</span>
+          <div>
+            <h3 class="font-display text-2xl mb-2">Registras la visita.</h3>
+            <p class="text-[var(--fg-dim)] text-sm leading-relaxed">Un toque en tu teléfono. Sin QR gigante. Sin interfaces. Una acción natural que se siente invisible.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="reveal group md:translate-y-24">
+        <div class="aspect-[3/4] relative overflow-hidden vignette mb-6">
+          <img src="https://images.unsplash.com/photo-1556122071-e404eaedb77f?q=85&w=900&auto=format&fit=crop" alt="Cliente en calle" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+          <div class="absolute bottom-6 left-6 right-6 text-white">
+            <p class="font-mono text-[10px] tracking-[0.25em] uppercase text-white/60">Paso 03</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="font-mono text-[var(--accent)] text-sm mt-1">→</span>
+          <div>
+            <h3 class="font-display text-2xl mb-2">El cliente sonríe en la calle.</h3>
+            <p class="text-[var(--fg-dim)] text-sm leading-relaxed">Su teléfono vibra. Una notificación elegante de WhatsApp. BarberOS hace el resto sin que tú hagas nada más.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal mt-24 text-center">
+      <p class="font-display italic text-2xl text-[var(--fg-dim)]">Eso es todo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 — STORYTELLING HORIZONTAL ============ -->
+<section class="bg-black py-20 overflow-hidden border-y border-[var(--border)]" id="story">
+  <div class="max-w-7xl mx-auto px-6 mb-12">
+    <div class="reveal flex items-center gap-4 mb-12">
+      <span class="num-marker">04 / Lo que cambia en tu barbería</span>
+      <div class="flex-1 h-px bg-[var(--border)]"></div>
+    </div>
+    <h2 class="reveal font-display font-light text-[clamp(2rem,4vw,3.5rem)] leading-tight text-balance max-w-3xl">
+      Cada corte cuenta una historia.
+    </h2>
+  </div>
+
+  <div class="story-scroll">
+    <div class="story-slide">
+      <img src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?q=85&w=1600&auto=format&fit=crop" alt="Cliente entra" />
+      <div class="overlay"></div>
+      <div class="content reveal">
+        <p class="num-marker mb-6 text-[var(--accent-bright)]">01 / 05</p>
+        <h3 class="font-display text-4xl md:text-7xl font-light text-white text-balance">Cliente entra por primera vez.</h3>
+        <p class="mt-8 text-xl md:text-2xl text-white/80 font-light italic">Todo comienza con un corte.</p>
+      </div>
+    </div>
+    
+    <div class="story-slide">
+      <img src="https://images.unsplash.com/photo-1605497788044-5a32c7078486?q=85&w=1600&auto=format&fit=crop" alt="Registra visita" />
+      <div class="overlay"></div>
+      <div class="content reveal">
+        <p class="num-marker mb-6 text-[var(--accent-bright)]">02 / 05</p>
+        <h3 class="font-display text-4xl md:text-7xl font-light text-white text-balance">Registra su visita.</h3>
+        <p class="mt-8 text-xl md:text-2xl text-white/80 font-light italic">La mayoría de barberías termina aquí.</p>
+      </div>
+    </div>
+
+    <div class="story-slide">
+      <img src="https://images.unsplash.com/photo-1556122071-e404eaedb77f?q=85&w=1600&auto=format&fit=crop" alt="Seguimiento" />
+      <div class="overlay"></div>
+      <div class="content reveal">
+        <p class="num-marker mb-6 text-[var(--accent-bright)]">03 / 05</p>
+        <h3 class="font-display text-4xl md:text-7xl font-light text-white text-balance">BarberOS hace seguimiento.</h3>
+        <p class="mt-8 text-xl md:text-2xl text-white/80 font-light italic">Aquí empieza la diferencia.</p>
+      </div>
+    </div>
+
+    <div class="story-slide">
+      <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=85&w=1600&auto=format&fit=crop" alt="Cliente vuelve" />
+      <div class="overlay"></div>
+      <div class="content reveal">
+        <p class="num-marker mb-6 text-[var(--accent-bright)]">04 / 05</p>
+        <h3 class="font-display text-4xl md:text-7xl font-light text-white text-balance">Cliente vuelve.</h3>
+        <p class="mt-8 text-xl md:text-2xl text-white/80 font-light italic">Un cliente que regresa vale más que uno nuevo.</p>
+      </div>
+    </div>
+
+    <div class="story-slide">
+      <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?q=85&w=1600&auto=format&fit=crop" alt="Reseña" />
+      <div class="overlay"></div>
+      <div class="content reveal">
+        <p class="num-marker mb-6 text-[var(--accent-bright)]">05 / 05</p>
+        <h3 class="font-display text-4xl md:text-7xl font-light text-white text-balance">Deja una reseña.</h3>
+        <p class="mt-8 text-xl md:text-2xl text-white/80 font-light italic">Ahora también trae a otros.</p>
+      </div>
+    </div>
+  </div>
+  <p class="text-center mt-8 font-mono text-xs tracking-[0.2em] uppercase text-[var(--muted)]">Desliza horizontalmente →</p>
+</section>
+
+<!-- ============ 05 — LO QUE OCURRE DESPUÉS ============ -->
+<section class="section" id="por-que">
+  <div class="max-w-6xl mx-auto">
+    <div class="reveal flex items-center gap-4 mb-16">
+      <span class="num-marker">05 / Lo que ocurre después de cada corte</span>
+      <div class="flex-1 h-px bg-[var(--border)]"></div>
+    </div>
+
+    <div class="reveal mb-24 max-w-4xl">
+      <h2 class="font-display font-light text-[clamp(2rem,5vw,4rem)] leading-tight text-balance">
+        No hemos programado una herramienta. Hemos modelado <span class="italic text-[var(--accent)]">comportamiento humano</span>.
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-5 gap-px bg-[var(--border)]">
+      <div class="reveal bg-[var(--bg)] p-8 group hover:bg-[var(--bg-soft)] transition-colors duration-500">
+        <div class="font-mono text-xs tracking-[0.2em] text-[var(--accent)] mb-6">01</div>
+        <i class="fa-solid fa-chart-line text-2xl text-[var(--fg-dim)] group-hover:text-[var(--accent)] transition-colors mb-6 block"></i>
+        <h3 class="font-display text-2xl mb-3">Progreso.</h3>
+        <p class="text-sm text-[var(--fg-dim)] leading-relaxed">Cada visita cuenta. Cada visita se siente.</p>
+      </div>
+      <div class="reveal bg-[var(--bg)] p-8 group hover:bg-[var(--bg-soft)] transition-colors duration-500">
+        <div class="font-mono text-xs tracking-[0.2em] text-[var(--accent)] mb-6">02</div>
+        <i class="fa-solid fa-gift text-2xl text-[var(--fg-dim)] group-hover:text-[var(--accent)] transition-colors mb-6 block"></i>
+        <h3 class="font-display text-2xl mb-3">Recompensas.</h3>
+        <p class="text-sm text-[var(--fg-dim)] leading-relaxed">No promociones. Reconocimientos.</p>
+      </div>
+      <div class="reveal bg-[var(--bg)] p-8 group hover:bg-[var(--bg-soft)] transition-colors duration-500">
+        <div class="font-mono text-xs tracking-[0.2em] text-[var(--accent)] mb-6">03</div>
+        <i class="fa-solid fa-route text-2xl text-[var(--fg-dim)] group-hover:text-[var(--accent)] transition-colors mb-6 block"></i>
+        <h3 class="font-display text-2xl mb-3">Seguimiento sin esfuerzo.</h3>
+        <p class="text-sm text-[var(--fg-dim)] leading-relaxed">Silencioso. Constante. Sin molestar.</p>
+      </div>
+      <div class="reveal bg-[var(--bg)] p-8 group hover:bg-[var(--bg-soft)] transition-colors duration-500">
+        <div class="font-mono text-xs tracking-[0.2em] text-[var(--accent)] mb-6">04</div>
+        <i class="fa-solid fa-clock text-2xl text-[var(--fg-dim)] group-hover:text-[var(--accent)] transition-colors mb-6 block"></i>
+        <h3 class="font-display text-2xl mb-3">El momento justo.</h3>
+        <p class="text-sm text-[var(--fg-dim)] leading-relaxed">No cualquier lunes. El lunes correcto.</p>
+      </div>
+      <div class="reveal bg-[var(--bg)] p-8 group hover:bg-[var(--bg-soft)] transition-colors duration-500">
+        <div class="font-mono text-xs tracking-[0.2em] text-[var(--accent)] mb-6">05</div>
+        <i class="fa-solid fa-eye text-2xl text-[var(--fg-dim)] group-hover:text-[var(--accent)] transition-colors mb-6 block"></i>
+        <h3 class="font-display text-2xl mb-3">Curiosidad.</h3>
+        <p class="text-sm text-[var(--fg-dim)] leading-relaxed">El cliente abre WhatsApp. Quiere saber.</p>
+      </div>
+    </div>
+
+    <div class="reveal mt-24 text-center">
+      <p class="font-display italic text-[clamp(1.5rem,3vw,2.5rem)] text-[var(--fg-dim)] max-w-3xl mx-auto leading-snug text-balance">
+        Inteligencia que <span class="text-[var(--accent)] not-italic">no olvida a tus clientes</span>.
+      </p>
+      
+      <div class="mt-12">
+        <a href="#fundadores" class="btn-primary inline-flex items-center gap-3 px-8 py-4 text-sm font-mono tracking-[0.15em] uppercase">
+          <span>Quiero probarlo</span>
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 — PREGUNTAS QUE DUELEN ============ -->
+<section class="section bg-[var(--bg-soft)] relative overflow-hidden" id="preguntas">
+  <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
+    <span class="font-display text-[40vw] font-black">?</span>
+  </div>
+
+  <div class="max-w-5xl mx-auto relative">
+    <div class="reveal flex items-center gap-4 mb-16">
+      <span class="num-marker">06 / Preguntas que duelen</span>
+      <div class="flex-1 h-px bg-[var(--border)]"></div>
+    </div>
+
+    <div class="reveal mb-20">
+      <h2 class="font-display font-light text-[clamp(2rem,5vw,4rem)] leading-tight text-balance">
+        No respondemos. <span class="italic text-[var(--accent)]">Solo preguntamos.</span>
+      </h2>
+    </div>
+
+    <div class="reveal-stagger space-y-2">
+      <div class="pregunta font-display font-light text-[clamp(1.5rem,3.5vw,2.8rem)] py-8 border-b border-[var(--border)] cursor-pointer">
+        ¿Cuántos clientes dejaste de ver este mes?
+      </div>
+      <div class="pregunta font-display font-light text-[clamp(1.5rem,3.5vw,2.8rem)] py-8 border-b border-[var(--border)] cursor-pointer">
+        ¿Cuánto dinero representan?
+      </div>
+      <div class="pregunta font-display font-light text-[clamp(1.5rem,3.5vw,2.8rem)] py-8 border-b border-[var(--border)] cursor-pointer">
+        ¿Quién fideliza mejor?
+      </div>
+      <div class="pregunta font-display font-light text-[clamp(1.5rem,3.5vw,2.8rem)] py-8 border-b border-[var(--border)] cursor-pointer">
+        ¿Quién se fue con la barbería de la esquina?
+      </div>
+      <div class="pregunta font-display font-light text-[clamp(1.5rem,3.5vw,2.8rem)] py-8 border-b border-[var(--border)] cursor-pointer">
+        ¿Cuántos volverían si <span class="text-[var(--accent)] italic">alguien</span> les escribiera hoy?
+      </div>
+    </div>
+
+    <div class="reveal mt-20 text-center">
+      <p class="font-mono text-xs tracking-[0.3em] uppercase text-[var(--muted)]">Si alguna te ha dolido, sigue leyendo.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 — VIDEO FUNDADOR ============ -->
+<section class="section" id="video-founder">
+  <div class="max-w-6xl mx-auto">
+    <div class="reveal flex items-center gap-4 mb-16">
+      <span class="num-marker">07 / Video</span>
+      <div class="flex-1 h-px bg-[var(--border)]"></div>
+    </div>
+
+    <div class="grid md:grid-cols-12 gap-12 items-center">
+      <div class="md:col-span-7 reveal">
+        <div class="aspect-video relative overflow-hidden vignette group">
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=85&w=1600&auto=format&fit=crop" alt="Fundador" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30"></div>
+          
+          <button class="absolute inset-0 flex items-center justify-center group" data-cursor="hover">
+            <div class="w-24 h-24 rounded-full border-2 border-white/80 flex items-center justify-center backdrop-blur-sm bg-black/30 group-hover:bg-[var(--accent)] group-hover:border-[var(--accent)] transition-all duration-500">
+              <i class="fa-solid fa-play text-white text-2xl ml-1"></i>
+            </div>
+          </button>
+
+          <div class="absolute top-6 left-6 flex items-center gap-3 text-white text-[10px] font-mono tracking-[0.25em]">
+            <span class="w-2 h-2 bg-red-500 rec-dot rounded-full"></span>
+            <span>FOUNDERS CUT · 05:00</span>
+          </div>
+          <div class="absolute bottom-6 left-6 right-6 flex items-end justify-between text-white">
+            <p class="font-display italic text-xl md:text-2xl max-w-md">"No diseñé BarberOS para digitalizar tarjetas."</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-5 reveal">
+        <p class="num-marker mb-6">Founder · 5 min</p>
+        <h2 class="font-display font-light text-[clamp(1.8rem,3.5vw,3rem)] leading-tight mb-8 text-balance">
+          "Lo diseñé porque descubrí que el verdadero problema era que el cliente <span class="italic text-[var(--accent)]">desaparecía</span>."
+        </h2>
+
+        <div class="space-y-4 text-[var(--fg-dim)] leading-relaxed">
+          <p>Cinco minutos. Sin guion. Sin filtros.</p>
+          <p>La historia de por qué existe BarberOS y por qué no es lo que crees.</p>
+        </div>
+
+        <button class="mt-10 btn-ghost px-6 py-3 text-xs font-mono tracking-[0.15em] uppercase flex items-center gap-3" data-cursor="hover">
+          <i class="fa-solid fa-play text-[10px]"></i>
+          <span>Reproducir video</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 08 — EL FUTURO DE TU BARBERÍA ============ -->
+<section class="section bg-[var(--bg-soft)]" id="futuro">
+  <div class="max-w-5xl mx-auto">
+    <div class="reveal flex items-center gap-4 mb-16">
+      <span class="num-marker">08 / El futuro de tu barbería</span>
+      <div class="flex-1 h-px bg-[var(--border)]"></div>
+    </div>
+
+    <div class="reveal mb-20 max-w-3xl">
+      <h2 class="font-display font-light text-[clamp(2rem,5vw,4rem)] leading-tight text-balance">
+        No vendemos actualizaciones de software. Construimos un <span class="italic text-[var(--accent)]">organismo que crece</span> contigo.
+      </h2>
+      <p class="mt-6 text-[var(--fg-dim)] text-lg leading-relaxed">
+        Todo construido sobre la misma base de datos. Cada etapa alimenta la siguiente.
+      </p>
+    </div>
+
+    <div class="relative">
+      <div class="absolute left-8 md:left-1/2 top-0 bottom-0 w-px bg-[var(--border)] md:-translate-x-1/2"></div>
+
+      <div class="space-y-16">
+        <div class="roadmap-step reveal active relative pl-20 md:pl-0 md:grid md:grid-cols-2 md:gap-16">
+          <div class="md:text-right md:pr-16">
+            <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--accent)] mb-3">Hoy</p>
+            <h3 class="font-display text-3xl md:text-4xl font-light">Fidelización.</h3>
+          </div>
+          <div class="hidden md:block"></div>
+          <p class="md:col-start-2 md:pl-16 text-[var(--fg-dim)] leading-relaxed mt-3 md:mt-0">El cimiento. Sin esto, lo demás no se sostiene.</p>
+        </div>
+
+        <div class="roadmap-step reveal relative pl-20 md:pl-0 md:grid md:grid-cols-2 md:gap-16">
+          <div class="hidden md:block"></div>
+          <div class="md:pl-16">
+            <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--fg-dim)] mb-3">+ 3 meses</p>
+            <h3 class="font-display text-3xl md:text-4xl font-light">Motor de reputación.</h3>
+            <p class="mt-3 text-[var(--fg-dim)] leading-relaxed">Reseñas Google automáticas en el momento exacto de satisfacción.</p>
+          </div>
+        </div>
+
+        <div class="roadmap-step reveal relative pl-20 md:pl-0 md:grid md:grid-cols-2 md:gap-16">
+          <div class="md:text-right md:pr-16">
+            <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--fg-dim)] mb-3">+ 6 meses</p>
+            <h3 class="font-display text-3xl md:text-4xl font-light">Seguimiento sin esfuerzo.</h3>
+          </div>
+          <p class="md:col-start-2 md:pl-16 text-[var(--fg-dim)] leading-relaxed mt-3 md:mt-0">Mensajes que se envían solos, al cliente correcto, en el momento correcto.</p>
+        </div>
+
+        <div class="roadmap-step reveal relative pl-20 md:pl-0 md:grid md:grid-cols-2 md:gap-16">
+          <div class="hidden md:block"></div>
+          <div class="md:pl-16">
+            <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--fg-dim)] mb-3">+ 9 meses</p>
+            <h3 class="font-display text-3xl md:text-4xl font-light">Gerente IA.</h3>
+            <p class="mt-3 text-[var(--fg-dim)] leading-relaxed">Responde WhatsApp. Agenda. Sugiere. Aprende de cada interacción.</p>
+          </div>
+        </div>
+
+        <div class="roadmap-step reveal relative pl-20 md:pl-0 md:grid md:grid-cols-2 md:gap-16">
+          <div class="md:text-right md:pr-16">
+            <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--fg-dim)] mb-3">+ 12 meses</p>
+            <h3 class="font-display text-3xl md:text-4xl font-light">Predicción.</h3>
+          </div>
+          <p class="md:col-start-2 md:pl-16 text-[var(--fg-dim)] leading-relaxed mt-3 md:mt-0">Saber quién va a volver antes de que vuelva. Y quién se está yendo antes de que se vaya.</p>
+        </div>
+
+        <div class="roadmap-step reveal relative pl-20 md:pl-0 md:grid md:grid-cols-2 md:gap-16">
+          <div class="hidden md:block"></div>
+          <div class="md:pl-16">
+            <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--accent)] mb-3">+ 18 meses</p>
+            <h3 class="font-display text-3xl md:text-4xl font-light text-[var(--accent)]">Sistema Operativo.</h3>
+            <p class="mt-3 text-[var(--fg-dim)] leading-relaxed">La barbería funciona sin que tú pienses en la barbería.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 09 — OBJECIONES ============ -->
+<section class="section" id="objeciones">
+  <div class="max-w-7xl mx-auto">
+    <div class="reveal flex items-center gap-4 mb-16">
+      <span class="num-marker">09 / Objeciones</span>
+      <div class="flex-1 h-px bg-[var(--border)]"></div>
+    </div>
+
+    <div class="reveal mb-20 max-w-4xl">
+      <h2 class="font-display font-light text-[clamp(2rem,5vw,4rem)] leading-tight text-balance">
+        No un acordeón. <span class="italic text-[var(--accent)]">Tu cara.</span> Treinta segundos por respuesta.
+      </h2>
+      <p class="mt-6 text-[var(--fg-dim)] text-lg">Pasa el cursor. Mira a los ojos.</p>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="objection-card reveal p-8 min-h-[280px] flex flex-col justify-between">
+        <div class="objection-text transition-opacity duration-300">
+          <p class="num-marker mb-6">01</p>
+          <p class="font-display text-2xl md:text-3xl font-light leading-snug">"Eso ya me lo ofrecieron."</p>
+        </div>
+        <div class="video-preview">
+          <p class="text-[var(--fg-dim)] text-sm leading-relaxed">Te lo ofrecieron. Pero no te lo dieron. Te vendieron una tarjeta. No una relación.</p>
+        </div>
+        <div class="relative z-10 flex items-center justify-between mt-8">
+          <span class="font-mono text-xs tracking-[0.2em] uppercase text-[var(--fg-dim)]">00:30</span>
+          <div class="play-orb w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center">
+            <i class="fa-solid fa-play text-xs"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="objection-card reveal p-8 min-h-[280px] flex flex-col justify-between">
+        <div class="objection-text transition-opacity duration-300">
+          <p class="num-marker mb-6">02</p>
+          <p class="font-display text-2xl md:text-3xl font-light leading-snug">"¿Lo puedo hacer con ChatGPT?"</p>
+        </div>
+        <div class="video-preview">
+          <p class="text-[var(--fg-dim)] text-sm leading-relaxed">Puedes. Pero no lo vas a hacer. Y si lo haces, no lo vas a sostener. Y si lo sostienes, no va a escalar.</p>
+        </div>
+        <div class="relative z-10 flex items-center justify-between mt-8">
+          <span class="font-mono text-xs tracking-[0.2em] uppercase text-[var(--fg-dim)]">00:30</span>
+          <div class="play-orb w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center">
+            <i class="fa-solid fa-play text-xs"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="objection-card reveal p-8 min-h-[280px] flex flex-col justify-between">
+        <div class="objection-text transition-opacity duration-300">
+          <p class="num-marker mb-6">03</p>
+          <p class="font-display text-2xl md:text-3xl font-light leading-snug">"¿Necesito otra aplicación?"</p>
+        </div>
+        <div class="video-preview">
+          <p class="text-[var(--fg-dim)] text-sm leading-relaxed">No. El cliente no instala nada. Tú no instalas nada. Todo vive donde ya estás: WhatsApp.</p>
+        </div>
+        <div class="relative z-10 flex items-center justify-between mt-8">
+          <span class="font-mono text-xs tracking-[0.2em] uppercase text-[var(--fg-dim)]">00:30</span>
+          <div class="play-orb w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center">
+            <i class="fa-solid fa-play text-xs"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="objection-card reveal p-8 min-h-[280px] flex flex-col justify-between">
+        <div class="objection-text transition-opacity duration-300">
+          <p class="num-marker mb-6">04</p>
+          <p class="font-display text-2xl md:text-3xl font-light leading-snug">"¿Qué pasa si no tengo tiempo?"</p>
+        </div>
+        <div class="video-preview">
+          <p class="text-[var(--fg-dim)] text-sm leading-relaxed">No necesitas tiempo. Necesitas 90 segundos al final del corte. BarberOS hace el resto mientras duermes.</p>
+        </div>
+        <div class="relative z-10 flex items-center justify-between mt-8">
+          <span class="font-mono text-xs tracking-[0.2em] uppercase text-[var(--fg-dim)]">00:30</span>
+          <div class="play-orb w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center">
+            <i class="fa-solid fa-play text-xs"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="objection-card reveal p-8 min-h-[280px] flex flex-col justify-between">
+        <div class="objection-text transition-opacity duration-300">
+          <p class="num-marker mb-6">05</p>
+          <p class="font-display text-2xl md:text-3xl font-light leading-snug">"¿Y si tengo varios barberos?"</p>
+        </div>
+        <div class="video-preview">
+          <p class="text-[var(--fg-dim)] text-sm leading-relaxed">Mejor. Cada barbero genera datos. Los datos alimentan el sistema. El sistema alimenta la barbería.</p>
+        </div>
+        <div class="relative z-10 flex items-center justify-between mt-8">
+          <span class="font-mono text-xs tracking-[0.2em] uppercase text-[var(--fg-dim)]">00:30</span>
+          <div class="play-orb w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center">
+            <i class="fa-solid fa-play text-xs"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="objection-card reveal p-8 min-h-[280px] flex flex-col justify-between">
+        <div class="objection-text transition-opacity duration-300">
+          <p class="num-marker mb-6">06</p>
+          <p class="font-display text-2xl md:text-3xl font-light leading-snug">"¿Y si mi cliente no usa tecnología?"</p>
+        </div>
+        <div class="video-preview">
+          <p class="text-[var(--fg-dim)] text-sm leading-relaxed">Si usa WhatsApp, ya usa tecnología. Y todos usan WhatsApp.</p>
+        </div>
+        <div class="relative z-10 flex items-center justify-between mt-8">
+          <span class="font-mono text-xs tracking-[0.2em] uppercase text-[var(--fg-dim)]">00:30</span>
+          <div class="play-orb w-10 h-10 rounded-full border border-[var(--border)] flex items-center justify-center">
+            <i class="fa-solid fa-play text-xs"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 — BARBEROS FUNDADORES ============ -->
+<section class="section bg-[var(--bg-soft)] relative overflow-hidden" id="fundadores">
+  <div class="absolute inset-0 opacity-20">
+    <img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?q=85&w=2000&auto=format&fit=crop" class="w-full h-full object-cover" alt="" />
+    <div class="absolute inset-0 bg-gradient-to-b from-[var(--bg-soft)] via-[var(--bg-soft)]/80 to-[var(--bg-soft)]"></div>
+  </div>
+
+  <div class="max-w-5xl mx-auto relative">
+    <div class="reveal flex items-center gap-4 mb-16">
+      <span class="num-marker">10 / Barberos fundadores</span>
+      <div class="flex-1 h-px bg-[var(--border)]"></div>
+    </div>
+
+    <div class="reveal mb-16">
+      <p class="font-mono text-xs tracking-[0.3em] uppercase text-[var(--accent)] mb-6">No vender. Invitar.</p>
+      <h2 class="font-display font-light text-[clamp(2.5rem,6vw,5.5rem)] leading-[1.02] text-balance">
+        Buscamos solo
+        <span class="block italic text-[var(--accent)]">10 barberías.</span>
+      </h2>
+    </div>
+
+    <div class="reveal max-w-2xl mb-16">
+      <p class="text-[var(--fg)] text-xl leading-relaxed font-light">
+        No queremos vender licencias. Queremos construir BarberOS junto a quienes quieren diferenciarse.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-px bg-[var(--border)] mb-16">
+      <div class="reveal bg-[var(--bg-soft)] p-8 flex items-start gap-5">
+        <span class="font-mono text-[var(--accent)] text-sm mt-1">01</span>
+        <div>
+          <h4 class="font-display text-xl mb-2">Precio congelado.</h4>
+          <p class="text-sm text-[var(--fg-dim)] leading-relaxed">Para siempre. Lo que pagues hoy es lo que pagarás en cinco años.</p>
+        </div>
+      </div>
+      <div class="reveal bg-[var(--bg-soft)] p-8 flex items-start gap-5">
+        <span class="font-mono text-[var(--accent)] text-sm mt-1">02</span>
+        <div>
+          <h4 class="font-display text-xl mb-2">Acceso anticipado.</h4>
+          <p class="text-sm text-[var(--fg-dim)] leading-relaxed">A cada nueva función, antes que nadie. Meses antes.</p>
+        </div>
+      </div>
+      <div class="reveal bg-[var(--bg-soft)] p-8 flex items-start gap-5">
+        <span class="font-mono text-[var(--accent)] text-sm mt-1">03</span>
+        <div>
+          <h4 class="font-display text-xl mb-2">Participación real.</h4>
+          <p class="text-sm text-[var(--fg-dim)] leading-relaxed">Tu voz decide qué se construye después. No es encuesta. Es veto.</p>
+        </div>
+      </div>
+      <div class="reveal bg-[var(--bg-soft)] p-8 flex items-start gap-5">
+        <span class="font-mono text-[var(--accent)] text-sm mt-1">04</span>
+        <div>
+          <h4 class="font-display text-xl mb-2">Caso de éxito oficial.</h4>
+          <p class="text-sm text-[var(--fg-dim)] leading-relaxed">Tu barbería, documentada. Tu nombre, asociado a algo más grande.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal mb-12 p-8 border border-[var(--border)] bg-[var(--bg)]">
+      <div class="flex items-center justify-between flex-wrap gap-6">
+        <div>
+          <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--fg-dim)] mb-2">Plazas disponibles</p>
+          <p class="font-display text-5xl font-light"><span class="text-[var(--accent)]">07</span> <span class="text-[var(--muted)]">/ 10</span></p>
+        </div>
+        <div class="flex-1 min-w-[200px] max-w-md">
+          <div class="h-1 bg-[var(--border)] relative overflow-hidden">
+            <div class="absolute inset-y-0 left-0 bg-[var(--accent)]" style="width:30%"></div>
+          </div>
+          <p class="font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--fg-dim)] mt-2">3 barberías ya están dentro</p>
+        </div>
+      </div>
+    </div>
+
+    <form id="founder-form" class="reveal space-y-6 max-w-2xl">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <label class="block font-mono text-xs tracking-[0.2em] uppercase text-[var(--fg-dim)] mb-3">Nombre</label>
+          <input type="text" required class="w-full bg-transparent border-b border-[var(--border)] py-3 text-lg focus:outline-none focus:border-[var(--accent)] transition-colors" placeholder="Tu nombre" />
+        </div>
+        <div>
+          <label class="block font-mono text-xs tracking-[0.2em] uppercase text-[var(--fg-dim)] mb-3">Barbería</label>
+          <input type="text" required class="w-full bg-transparent border-b border-[var(--border)] py-3 text-lg focus:outline-none focus:border-[var(--accent)] transition-colors" placeholder="Nombre de tu barbería" />
+        </div>
+        <div>
+          <label class="block font-mono text-xs tracking-[0.2em] uppercase text-[var(--fg-dim)] mb-3">WhatsApp</label>
+          <input type="tel" required class="w-full bg-transparent border-b border-[var(--border)] py-3 text-lg focus:outline-none focus:border-[var(--accent)] transition-colors" placeholder="+34 600 000 000" />
+        </div>
+        <div>
+          <label class="block font-mono text-xs tracking-[0.2em] uppercase text-[var(--fg-dim)] mb-3">Ciudad</label>
+          <input type="text" required class="w-full bg-transparent border-b border-[var(--border)] py-3 text-lg focus:outline-none focus:border-[var(--accent)] transition-colors" placeholder="Tu ciudad" />
+        </div>
+      </div>
+      <div>
+        <label class="block font-mono text-xs tracking-[0.2em] uppercase text-[var(--fg-dim)] mb-3">¿Por qué quieres ser barbería fundadora?</label>
+        <textarea rows="3" class="w-full bg-transparent border-b border-[var(--border)] py-3 text-lg focus:outline-none focus:border-[var(--accent)] transition-colors resize-none" placeholder="Cuéntanos en dos frases"></textarea>
+      </div>
+      <button type="submit" class="btn-primary px-10 py-5 text-sm font-mono tracking-[0.15em] uppercase flex items-center gap-4">
+        <span>Quiero ser barbería fundadora</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- ============ 11 — CTA FINAL ============ -->
+<section class="section relative" id="cta-final">
+  <div class="max-w-5xl mx-auto text-center">
+    <div class="reveal flex items-center justify-center gap-4 mb-16">
+      <div class="h-px w-12 bg-[var(--border)]"></div>
+      <span class="num-marker">11 / La decisión</span>
+      <div class="h-px w-12 bg-[var(--border)]"></div>
+    </div>
+
+    <p class="reveal font-display font-light text-[clamp(2rem,5vw,4.5rem)] leading-[1.1] mb-8 text-balance">
+      Dentro de seis meses tendrás
+      <span class="italic text-[var(--accent)]">dos opciones</span>.
+    </p>
+
+    <div class="reveal grid md:grid-cols-2 gap-8 my-20 text-left">
+      <div class="p-8 border border-[var(--border)] bg-[var(--bg-soft)]">
+        <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--muted)] mb-6">Opción A</p>
+        <p class="font-display text-2xl md:text-3xl font-light leading-snug text-[var(--fg-dim)]">
+          Seguir preguntándote por qué algunos clientes dejaron de volver.
+        </p>
+      </div>
+      <div class="p-8 border border-[var(--accent)] bg-[var(--bg-soft)] relative glow-accent">
+        <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--accent)] mb-6">Opción B</p>
+        <p class="font-display text-2xl md:text-3xl font-light leading-snug">
+          Saber exactamente <span class="italic">quiénes son</span>. Y hacer algo al respecto.
+        </p>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <a href="#fundadores" class="btn-primary inline-flex items-center gap-4 px-12 py-6 text-base font-mono tracking-[0.15em] uppercase">
+        <span>Quiero que mis clientes regresen más</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </a>
+      <p class="mt-8 font-mono text-xs tracking-[0.25em] uppercase text-[var(--muted)]">Solo 10 plazas · 7 disponibles</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="border-t border-[var(--border)] py-16 px-6">
+  <div class="max-w-7xl mx-auto">
+    <div class="grid md:grid-cols-4 gap-12 mb-16">
+      <div class="md:col-span-2">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-8 h-8 border border-[var(--fg)] flex items-center justify-center">
+            <span class="font-display text-base font-bold">B</span>
+          </div>
+          <span class="font-mono text-xs tracking-[0.25em] uppercase">BarberOS</span>
+        </div>
+        <p class="font-display italic text-2xl text-[var(--fg-dim)] max-w-md leading-snug">
+          Tu trabajo termina cuando acaba el corte. El nuestro empieza ahí.
+        </p>
+      </div>
+      <div>
+        <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--muted)] mb-4">Navegar</p>
+        <ul class="space-y-3 text-sm">
+          <li><a href="#problema" class="hover:text-[var(--accent)] transition">El problema</a></li>
+          <li><a href="#como" class="hover:text-[var(--accent)] transition">Cómo funciona</a></li>
+          <li><a href="#por-que" class="hover:text-[var(--accent)] transition">Por qué funciona</a></li>
+          <li><a href="#fundadores" class="hover:text-[var(--accent)] transition">Fundadores</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="font-mono text-xs tracking-[0.25em] uppercase text-[var(--muted)] mb-4">Contacto</p>
+        <ul class="space-y-3 text-sm">
+          <li class="text-[var(--fg-dim)]">hola@barberos.app</li>
+          <li class="text-[var(--fg-dim)]">WhatsApp: +34 600 000 000</li>
+          <li class="text-[var(--fg-dim)]">Lun–Vie · 10:00–19:00</li>
+        </ul>
+      </div>
+    </div>
+    <div class="div-line mb-8"></div>
+    <div class="flex flex-wrap items-center justify-between gap-4 font-mono text-[10px] tracking-[0.2em] uppercase text-[var(--muted)]">
+      <span>© 2025 BarberOS · Construido por barberos, para barberos</span>
+      <div class="flex items-center gap-3">
+        <span class="w-1.5 h-1.5 bg-[var(--accent)] rounded-full pulse-ring"></span>
+        <span>Sistema operativo · v0.1 founders</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Fixed CTA -->
+<div class="fixed-cta" id="fixedCta">
+  <a href="#cta-final" class="btn-primary px-6 py-4 text-xs font-mono tracking-[0.15em] uppercase flex items-center gap-3 shadow-2xl">
+    <span>Reservar plaza</span>
+    <i class="fa-solid fa-arrow-right text-[10px]"></i>
+  </a>
+</div>
+
+<script>
+  // Cursor
+  const dot = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.left = mx + 'px';
+    dot.style.top = my + 'px';
+  });
+  function animateRing(){
+    rx += (mx - rx) * 0.18;
+    ry += (my - ry) * 0.18;
+    ring.style.left = rx + 'px';
+    ring.style.top = ry + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+
+  document.querySelectorAll('a, button, .pregunta, .objection-card, [data-cursor="hover"]').forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+  });
+
+  // Reveal on scroll
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+
+  document.querySelectorAll('.reveal, .reveal-stagger').forEach(el => io.observe(el));
+
+  // Fixed CTA visibility
+  const fixedCta = document.getElementById('fixedCta');
+  const heroEnd = document.getElementById('problema');
+  const ctaFinal = document.getElementById('cta-final');
+  
+  window.addEventListener('scroll', () => {
+    const heroBottom = heroEnd.getBoundingClientRect().top;
+    const ctaTop = ctaFinal.getBoundingClientRect().top;
+    if (heroBottom < 0 && ctaTop > window.innerHeight) {
+      fixedCta.classList.add('show');
+    } else {
+      fixedCta.classList.remove('show');
+    }
+  });
+
+  // Roadmap active step on scroll
+  const roadmapSteps = document.querySelectorAll('.roadmap-step');
+  const roadmapObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        roadmapSteps.forEach(s => s.classList.remove('active'));
+        entry.target.classList.add('active');
+      }
+    });
+  }, { threshold: 0.6 });
+  roadmapSteps.forEach(step => roadmapObserver.observe(step));
+
+  // Form
+  const form = document.getElementById('founder-form');
+  const toast = document.getElementById('toast');
+  if (form) {
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      toast.textContent = 'Recibido. Te escribimos por WhatsApp en menos de 24 horas.';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4500);
+      form.reset();
+    });
+  }
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // Preguntas: small vibration on hover
+  document.querySelectorAll('.pregunta').forEach(p => {
+    p.addEventListener('mouseenter', () => {
+      p.style.transform = translateX(${(Math.random() - 0.5) * 2}px);
+      setTimeout(() => p.style.transform = '', 80);
+    });
+  });
+</script>
+</body>
+</html>

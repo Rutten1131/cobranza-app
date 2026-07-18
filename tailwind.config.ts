@@ -9,35 +9,37 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Dark Glassmorphism Palette
+        // Cinematographic Barbershop Palette
         primary: {
-          DEFAULT: "#3F68FF",
-          dark: "#2D4FD9",
-          light: "#6D8CFF",
+          DEFAULT: "#d97644",   // Cobre quemado
+          dark: "#a8501f",      // Cobre profundo
+          light: "#ec8a52",     // Cobre hover
         },
-        accent: "#22C55E",
-        warning: "#F59E0B",
-        danger: "#EF4444",
+        accent: "#22C55E",      // Verde para estados "pagado"
+        warning: "#eab308",
+        danger: "#ef4444",
         surface: {
-          DEFAULT: "#161E3A",
-          secondary: "#1D2446",
-          card: "#222A4B",
+          DEFAULT: "#131110",   // Fondo de tarjetas
+          secondary: "#1a1715", // Fondo de hover/inputs
+          card: "#1a1715",
+          dark: "#0a0807",
         },
         background: {
-          primary: "#161E3A",
-          secondary: "#1D2446",
+          primary: "#0a0807",   // Carbón cálido
+          secondary: "#131110",
         },
-        "text-main": "#FFFFFF",
-        "text-sub": "#B9C3E3",
-        "text-muted": "#8B93B6",
+        "text-main": "#f3ece1", // Crema
+        "text-sub": "#a89e90",  // Texto secundario
+        "text-muted": "#5c554c",// Placeholder
         border: {
-          DEFAULT: "rgba(255,255,255,0.06)",
-          light: "rgba(255,255,255,0.12)",
+          DEFAULT: "#2a2520",
+          light: "#1f1c19",
         },
+        card: "#1a1715",
       },
       fontFamily: {
-        display: ['"Plus Jakarta Sans"', "sans-serif"],
-        body: ["Inter", "sans-serif"],
+        display: ["Fraunces", "serif"],
+        body: ['"Space Grotesk"', "sans-serif"],
         mono: ['"JetBrains Mono"', "monospace"],
       },
       fontSize: {
@@ -48,19 +50,19 @@ const config: Config = {
         small: ["0.875rem", { lineHeight: "1.5", fontWeight: "400" }],
       },
       borderRadius: {
-        xs: "8px",
-        sm: "12px",
-        md: "16px",
-        lg: "20px",
-        xl: "28px",
+        xs: "4px",
+        sm: "6px",
+        md: "8px",
+        lg: "12px",
+        xl: "16px",
         pill: "9999px",
       },
       boxShadow: {
-        card: "0 10px 30px rgba(0,0,0,0.35)",
-        "card-sm": "0 4px 12px rgba(0,0,0,0.18)",
-        modal: "0 20px 40px rgba(0,0,0,0.45)",
-        glow: "0 0 25px rgba(80,120,255,0.45)",
-        "glow-sm": "0 0 15px rgba(79,116,255,0.35)",
+        card: "0 4px 20px rgba(0,0,0,0.4)",
+        "card-sm": "0 2px 10px rgba(0,0,0,0.3)",
+        modal: "0 20px 40px rgba(0,0,0,0.5)",
+        glow: "0 0 20px rgba(217,118,68,0.3)",
+        "glow-sm": "0 0 10px rgba(217,118,68,0.2)",
       },
       backdropBlur: {
         glass: "20px",

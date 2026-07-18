@@ -1956,7 +1956,7 @@ export default function UserDashboard() {
                   <div className="mt-5 border-t border-border pt-4">
                     {whatsappQR ? (
                       <div className="flex flex-col items-center justify-center p-4 bg-surface-card rounded-md border border-glass">
-                        <div className="bg-white p-3 rounded-md shadow-sm border border-border mb-3">
+                        <div className="bg-surface-card p-3 rounded-md shadow-sm border border-border mb-3">
                           <img src={whatsappQR} alt="WhatsApp QR Code" className="w-56 h-56 object-contain" />
                         </div>
                         <h4 className="font-semibold text-white text-body mb-1">Escanea el código QR</h4>
@@ -2274,7 +2274,7 @@ export default function UserDashboard() {
                     value={editCustomMessage}
                     onChange={(e) => setEditCustomMessage(e.target.value)}
                     rows={3}
-                    className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    className="w-full px-3 py-2 text-body bg-surface-card border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     placeholder={user?.defaultReminderMessage || `¡Hola {nombre}! 👋\n\nTe contactamos desde {negocio} para recordarte que hoy ({fecha}) corresponde la devolución de **{descripcion}**.\n\n¿Podrías confirmarnos la hora aproximada de entrega? Nos ayuda a tener todo preparado para recibirlo.\n\n¡Gracias por tu tiempo!\n\nSaludos,\n{negocio}`}
                   />
                   <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -2358,7 +2358,7 @@ export default function UserDashboard() {
                 {/* Reminder Schedule */}
                 <div className="space-y-2">
                   <span className="text-small font-bold text-text-main block">📅 Cronograma de Avisos (Programados)</span>
-                  <div className="border border-border rounded-sm divide-y divide-border max-h-[160px] overflow-y-auto bg-white">
+                  <div className="border border-border rounded-sm divide-y divide-border max-h-[160px] overflow-y-auto bg-surface-card">
                     {detailedRecord.reminderSchedule && detailedRecord.reminderSchedule.length > 0 ? (
                       detailedRecord.reminderSchedule.map((schedule: any) => {
                         const scheduled = new Date(schedule.scheduledDate);
@@ -2389,7 +2389,7 @@ export default function UserDashboard() {
                 {/* Message Log History */}
                 <div className="space-y-2">
                   <span className="text-small font-bold text-text-main block">💬 Historial de Mensajes Enviados</span>
-                  <div className="border border-border rounded-sm divide-y divide-border max-h-[160px] overflow-y-auto bg-white">
+                  <div className="border border-border rounded-sm divide-y divide-border max-h-[160px] overflow-y-auto bg-surface-card">
                     {detailedRecord.logs && detailedRecord.logs.length > 0 ? (
                       detailedRecord.logs.map((log: any) => {
                         const sentTime = new Date(log.sentAt);
@@ -2552,7 +2552,7 @@ export default function UserDashboard() {
                       updated[idx].key = e.target.value;
                       setManualCustomFields(updated);
                     }}
-                    className="flex-1 px-3 py-1.5 text-small bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="flex-1 px-3 py-1.5 text-small bg-surface-card border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <input
                     type="text"
@@ -2563,7 +2563,7 @@ export default function UserDashboard() {
                       updated[idx].value = e.target.value;
                       setManualCustomFields(updated);
                     }}
-                    className="flex-1 px-3 py-1.5 text-small bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="flex-1 px-3 py-1.5 text-small bg-surface-card border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                   <button
                     type="button"
@@ -2676,7 +2676,7 @@ export default function UserDashboard() {
                         updated[idx].key = e.target.value;
                         setManualCustomFields(updated);
                       }}
-                      className="flex-1 px-3 py-1.5 text-small bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="flex-1 px-3 py-1.5 text-small bg-surface-card border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                     <input
                       type="text"
@@ -2687,7 +2687,7 @@ export default function UserDashboard() {
                         updated[idx].value = e.target.value;
                         setManualCustomFields(updated);
                       }}
-                      className="flex-1 px-3 py-1.5 text-small bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="flex-1 px-3 py-1.5 text-small bg-surface-card border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                     <button
                       type="button"
@@ -2756,7 +2756,7 @@ export default function UserDashboard() {
               Notas (opcional)
             </label>
             <textarea
-              className="w-full px-3 py-2 text-body bg-white border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              className="w-full px-3 py-2 text-body bg-surface-card border border-border rounded-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               rows={3}
               placeholder="Notas adicionales..."
               value={clientForm.notes}
@@ -2794,7 +2794,7 @@ export default function UserDashboard() {
           {/* Tabla de Vista Previa */}
           <div className="space-y-1.5">
             <span className="text-xs font-bold text-text-muted uppercase tracking-wider block">Vista previa de tu Excel (Primeras 3 filas)</span>
-            <div className="overflow-x-auto border border-border rounded-sm bg-white">
+            <div className="overflow-x-auto border border-border rounded-sm bg-surface-card">
               <table className="min-w-full divide-y divide-border text-left">
                 <thead className="bg-surface">
                   <tr>
@@ -2830,7 +2830,7 @@ export default function UserDashboard() {
                 <select
                   value={excelMapping.name}
                   onChange={(e) => setExcelMapping({ ...excelMapping, name: e.target.value })}
-                  className="w-full px-2 py-1.5 text-small bg-white border border-border rounded-sm"
+                  className="w-full px-2 py-1.5 text-small bg-surface-card border border-border rounded-sm"
                   required
                 >
                   <option value="">-- Seleccionar --</option>
@@ -2843,7 +2843,7 @@ export default function UserDashboard() {
                 <select
                   value={excelMapping.price}
                   onChange={(e) => setExcelMapping({ ...excelMapping, price: e.target.value })}
-                  className="w-full px-2 py-1.5 text-small bg-white border border-border rounded-sm"
+                  className="w-full px-2 py-1.5 text-small bg-surface-card border border-border rounded-sm"
                 >
                   <option value="">-- No vincular / Ignorar --</option>
                   {excelHeaders.map((h) => <option key={h} value={h}>{h}</option>)}
@@ -2855,7 +2855,7 @@ export default function UserDashboard() {
                 <select
                   value={excelMapping.sku}
                   onChange={(e) => setExcelMapping({ ...excelMapping, sku: e.target.value })}
-                  className="w-full px-2 py-1.5 text-small bg-white border border-border rounded-sm"
+                  className="w-full px-2 py-1.5 text-small bg-surface-card border border-border rounded-sm"
                 >
                   <option value="">-- No vincular / Ignorar --</option>
                   {excelHeaders.map((h) => <option key={h} value={h}>{h}</option>)}
@@ -2867,7 +2867,7 @@ export default function UserDashboard() {
                 <select
                   value={excelMapping.stock}
                   onChange={(e) => setExcelMapping({ ...excelMapping, stock: e.target.value })}
-                  className="w-full px-2 py-1.5 text-small bg-white border border-border rounded-sm"
+                  className="w-full px-2 py-1.5 text-small bg-surface-card border border-border rounded-sm"
                 >
                   <option value="">-- Por defecto: 1 unidad --</option>
                   {excelHeaders.map((h) => <option key={h} value={h}>{h}</option>)}
@@ -2879,7 +2879,7 @@ export default function UserDashboard() {
                 <select
                   value={excelMapping.description}
                   onChange={(e) => setExcelMapping({ ...excelMapping, description: e.target.value })}
-                  className="w-full px-2 py-1.5 text-small bg-white border border-border rounded-sm"
+                  className="w-full px-2 py-1.5 text-small bg-surface-card border border-border rounded-sm"
                 >
                   <option value="">-- No vincular / Ignorar --</option>
                   {excelHeaders.map((h) => <option key={h} value={h}>{h}</option>)}
@@ -2893,7 +2893,7 @@ export default function UserDashboard() {
             <span className="text-xs font-bold text-text-muted uppercase tracking-wider block">Importar Columnas Extra como Campos Personalizados</span>
             <p className="text-[11px] text-text-muted">Las columnas marcadas se guardarán de forma inteligente en el producto.</p>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-white p-3 border border-border rounded-sm max-h-[140px] overflow-y-auto">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-surface-card p-3 border border-border rounded-sm max-h-[140px] overflow-y-auto">
               {excelHeaders
                 .filter(h => h !== excelMapping.name && h !== excelMapping.description && h !== excelMapping.sku && h !== excelMapping.price && h !== excelMapping.stock)
                 .map((header) => (

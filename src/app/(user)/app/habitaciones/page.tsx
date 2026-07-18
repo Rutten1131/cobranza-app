@@ -618,7 +618,7 @@ export default function HabitacionesPage() {
                   <select
                     value={hotelTypeFilter}
                     onChange={(e) => setHotelTypeFilter(e.target.value)}
-                    className="w-full px-2.5 py-1.5 text-xs bg-white border border-border rounded-sm text-text-main focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="w-full px-2.5 py-1.5 text-xs bg-surface-card border border-border rounded-sm text-text-main focus:outline-none focus:ring-1 focus:ring-primary"
                   >
                     <option value="todos">Todos los tipos</option>
                     {roomTypes.map((type) => (
@@ -948,7 +948,7 @@ export default function HabitacionesPage() {
       {/* Modal Reserva Manual (Estilo exacto a la captura de pantalla con marca Azul Marino y Blanco) */}
       {showCheckInModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded shadow-2xl w-full max-w-lg overflow-hidden border border-border animate-scale-up">
+          <div className="bg-surface-card rounded shadow-2xl w-full max-w-lg overflow-hidden border border-border animate-scale-up">
             {/* Header del Modal */}
             <div className="bg-primary text-white p-5 relative font-sans">
               <h2 className="text-xl font-semibold tracking-wide font-display">Reserva Manual</h2>
@@ -1034,7 +1034,7 @@ export default function HabitacionesPage() {
                   <select
                     value={checkInForm.status}
                     onChange={(e) => setCheckInForm({ ...checkInForm, status: e.target.value })}
-                    className="w-full px-3 py-2 text-xs border border-border rounded-xs bg-white text-text-main focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                    className="w-full px-3 py-2 text-xs border border-border rounded-xs bg-surface-card text-text-main focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                   >
                     <option value="paid">🟢 OK (PAGADO)</option>
                     <option value="pending">🟡 PENDIENTE</option>
@@ -1124,7 +1124,7 @@ export default function HabitacionesPage() {
       {/* Modal Mostrar Información de la Reserva */}
       {showInfoModal && selectedReservationForInfo && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded shadow-2xl w-full max-w-md overflow-hidden border border-border animate-scale-up">
+          <div className="bg-surface-card rounded shadow-2xl w-full max-w-md overflow-hidden border border-border animate-scale-up">
             {/* Header */}
             <div className="bg-primary text-white p-5 relative font-sans">
               <h2 className="text-xl font-semibold tracking-wide font-display">Información de Reserva</h2>
@@ -1234,7 +1234,7 @@ export default function HabitacionesPage() {
       {/* Modal Configurar Categorías / Ajustes */}
       {showSettingsModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded shadow-2xl w-full max-w-md overflow-hidden border border-border animate-scale-up">
+          <div className="bg-surface-card rounded shadow-2xl w-full max-w-md overflow-hidden border border-border animate-scale-up">
             {/* Header */}
             <div className="bg-primary text-white p-5 relative font-sans">
               <h2 className="text-xl font-semibold tracking-wide font-display">Categorías de Habitación</h2>
@@ -1338,7 +1338,7 @@ export default function HabitacionesPage() {
               <select
                 value={newRoomForm.type}
                 onChange={(e) => setNewRoomForm({ ...newRoomForm, type: e.target.value })}
-                className="w-full px-3 py-2 text-xs border border-border rounded-sm bg-white text-text-main focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                className="w-full px-3 py-2 text-xs border border-border rounded-sm bg-surface-card text-text-main focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                 required
               >
                 <option value="">Selecciona una categoría...</option>
@@ -1373,7 +1373,7 @@ export default function HabitacionesPage() {
       {/* Modal Editar Reserva */}
       {showEditReservationModal && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded shadow-2xl w-full max-w-lg overflow-hidden border border-border animate-scale-up">
+          <div className="bg-surface-card rounded shadow-2xl w-full max-w-lg overflow-hidden border border-border animate-scale-up">
             {/* Header del Modal */}
             <div className="bg-primary text-white p-5 relative font-sans">
               <h2 className="text-xl font-semibold tracking-wide font-display">Editar Reserva</h2>
@@ -1451,7 +1451,7 @@ export default function HabitacionesPage() {
                   <select
                     value={editReservationForm.status}
                     onChange={(e) => setEditReservationForm({ ...editReservationForm, status: e.target.value })}
-                    className="w-full px-3 py-2 text-xs border border-border rounded-xs bg-white text-text-main focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                    className="w-full px-3 py-2 text-xs border border-border rounded-xs bg-surface-card text-text-main focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                   >
                     <option value="paid">🟢 OK (PAGADO)</option>
                     <option value="pending">🟡 PENDIENTE</option>
@@ -1556,7 +1556,7 @@ export default function HabitacionesPage() {
             <select
               value={editRoomForm.type}
               onChange={(e) => setEditRoomForm({ ...editRoomForm, type: e.target.value })}
-              className="w-full px-3 py-2 text-xs border border-border rounded-sm bg-white text-text-main focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+              className="w-full px-3 py-2 text-xs border border-border rounded-sm bg-surface-card text-text-main focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
               required
             >
               {roomTypes.map((type) => (
@@ -1588,7 +1588,7 @@ export default function HabitacionesPage() {
       {/* Modal Confirmar Borrado de Habitación (con reservas) */}
       {showDeleteRoomModal && deleteRoomInfo && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded shadow-2xl w-full max-w-md overflow-hidden border border-border animate-scale-up">
+          <div className="bg-surface-card rounded shadow-2xl w-full max-w-md overflow-hidden border border-border animate-scale-up">
             {/* Header */}
             <div className="bg-danger text-white p-5 relative font-sans">
               <h2 className="text-lg font-semibold tracking-wide font-display">⚠️ Habitación con Reservas</h2>
@@ -1629,7 +1629,7 @@ export default function HabitacionesPage() {
                     <select
                       value={migrateTargetRoomId}
                       onChange={(e) => setMigrateTargetRoomId(e.target.value)}
-                      className="w-full px-3 py-2 text-xs border border-border rounded-xs bg-white text-text-main focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
+                      className="w-full px-3 py-2 text-xs border border-border rounded-xs bg-surface-card text-text-main focus:outline-none focus:ring-1 focus:ring-primary font-semibold"
                     >
                       <option value="">Selecciona habitación destino...</option>
                       {rooms

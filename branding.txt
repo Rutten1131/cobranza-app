@@ -1,0 +1,61 @@
+Aquí tienes el ajuste exacto de la sección de objeciones y, a continuación, el sistema de branding completo para que tu equipo de backend pueda replicar el estilo en el panel de administración.
+
+1. Cambio en la sección de Objeciones
+Busca la sección <!-- ============ 09 — OBJECIONES ============ --> en tu código y reemplaza el bloque del título y subtítulo con esto:
+
+2. Branding para el Backend (Design System)
+Para que el panel de control (backend) de BarberOS se sienta como parte de la misma experiencia, aquí tienes el sistema de diseño completo. La idea es que el panel sea oscuro, elegante y técnico, pero con el toque humano de la tipografía serif.
+
+Paleta de Colores (CSS Variables)
+css
+
+:root {
+  /* Fondo (Carbón cálido, no negro puro) */
+  --bg: #0a0807;          /* Fondo principal */
+  --bg-soft: #131110;     /* Fondo de tarjetas o secciones */
+  --bg-card: #1a1715;     /* Inputs, dropdowns, hover */
+
+  /* Texto (Crema, no blanco puro) */
+  --fg: #f3ece1;          /* Texto principal */
+  --fg-dim: #a89e90;      /* Texto secundario / etiquetas */
+  --muted: #5c554c;       /* Texto placeholder / deshabilitado */
+
+  /* Acento (Cobre quemado / Naranja vintage barbería) */
+  --accent: #d97644;      /* Botones principales, enlaces activos, checkboxes */
+  --accent-bright: #ec8a52; /* Hover states */
+  --accent-deep: #a8501f; /* Bordes de acento o sombras */
+
+  /* Bordes */
+  --border: #2a2520;      /* Bordes de tarjetas, separadores */
+  --border-soft: #1f1c19; /* Bordes muy sutiles */
+}
+Tipografías (Google Fonts)
+Display / Títulos: Fraunces (Pesos: 300, 400, 500. Ideal para el logo del panel, títulos de páginas y métricas grandes).
+Propiedad CSS recomendada: font-variation-settings: "opsz" 144, "SOFT" 50;
+UI / Texto base: Space Grotesk (Pesos: 400, 500, 600. Para todo el texto de la interfaz, tablas, menús laterales).
+Mono / Datos: JetBrains Mono (Pesos: 400, 500. Para números de teléfono, IDs, fechas, etiquetas técnicas, métricas pequeñas).
+Componentes Clave del Backend
+Botón Primario:
+
+Fondo: --accent
+Texto: --bg (el carbón oscuro)
+Hover: Transición suave a --fg (la crema)
+Bordes: 0px, pero con un ligero border-radius: 4px para que no sea tan "SaaS cuadrado".
+Inputs de formulario:
+
+Fondo: transparent o --bg-card
+Borde inferior: 1px solid --border (estilo underline, sin caja completa, se siente más limpio).
+Focus: Borde inferior cambia a --accent.
+Tarjetas de métricas / Datos:
+
+Fondo: --bg-soft
+Borde: 1px solid --border
+Sombra: Nada de sombras grises. Usar un sutil box-shadow: 0 4px 20px rgba(0,0,0,0.4).
+El número principal en Fraunces tamaño grande, la etiqueta en JetBrains Mono pequeña y en --accent.
+Menú Lateral (Sidebar):
+
+Fondo: --bg (igual que el fondo principal, pero separado por un borde --border).
+Íconos: Lineales (Font Awesome regular o similar), color --fg-dim.
+Ítem activo: Texto e ícono en --accent. Un pequeño barrita vertical izquierda de 2px en --accent.
+Microinteracción sugerida:
+Mantén el cursor personalizado de punto + anillo si es posible, o al menos asegúrate de que los hovers en las tablas cambien el fondo a --bg-card con una transición de 0.3s ease.
