@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
       hasCobranzas: user.hasCobranzas,
       hasHabitaciones: user.hasHabitaciones,
       hasBarberia: user.hasBarberia,
+      hasBarberiaPremium: user.hasBarberiaPremium,
     });
 
     const response = NextResponse.json({
@@ -57,6 +58,7 @@ export async function POST(req: NextRequest) {
         hasCobranzas: user.hasCobranzas,
         hasHabitaciones: user.hasHabitaciones,
         hasBarberia: user.hasBarberia,
+        hasBarberiaPremium: user.hasBarberiaPremium,
       },
     });
 
@@ -100,6 +102,7 @@ export async function GET(req: NextRequest) {
         hasCobranzas: true,
         hasHabitaciones: true,
         hasBarberia: true,
+        hasBarberiaPremium: true,
       },
     });
 

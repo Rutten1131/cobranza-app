@@ -36,6 +36,7 @@ model User {
   hasCobranzas  Boolean   @default(true) @map("has_cobranzas")
   hasHabitaciones Boolean   @default(false) @map("has_habitaciones")
   hasBarberia   Boolean   @default(false) @map("has_barberia")
+  hasBarberiaPremium Boolean @default(false) @map("has_barberia_premium")
   barberRequiredCuts Int     @default(5) @map("barber_required_cuts")
   barberGoogleMapsUrl String? @map("barber_google_maps_url")
 
@@ -49,6 +50,7 @@ model User {
   barberCustomers BarberCustomer[]
   barberCuts BarberCut[]
   barberCodes BarberCode[]
+  barberReviews BarberReview[]
 
   @@map("users")
 }
@@ -218,10 +220,13 @@ model BarberCustomer {
   hasReviewed Boolean  @default(false) @map("has_reviewed")
   reviewRequestSent Boolean @default(false) @map("review_request_sent")
   lastCutAt   DateTime? @map("last_cut_at")
+  birthday    DateTime? @map("birthday")
+  lastNotifiedInactive DateTime? @map("last_notified_inactive")
   createdAt   DateTime @default(now()) @map("created_at")
 
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   cuts        BarberCut[]
+  reviews     BarberReview[]
 
   @@unique([userId, whatsapp])
   @@map("barber_customers")
@@ -241,6 +246,21 @@ model BarberCut {
   staff          BarberStaff?   @relation(fields: [staffId], references: [id], onDelete: SetNull)
 
   @@map("barber_cuts")
+}
+
+model BarberReview {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  customerId  String   @map("customer_id")
+  rating      Int
+  comment     String?  @db.Text
+  googleReview Boolean @default(false) @map("google_review")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customer    BarberCustomer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+  @@map("barber_reviews")
 }
 
 model BarberCode {

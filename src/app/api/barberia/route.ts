@@ -79,10 +79,9 @@ export async function GET(req: NextRequest) {
       orderBy: { lastVisit: "desc" },
     });
 
-    // 4. Fetch recent cuts history (last 50)
+    // 4. Fetch recent cuts history (unlimited for full Excel reports)
     const cutsHistory = await prisma.barberCut.findMany({
       where: { userId: user.id },
-      take: 50,
       orderBy: { createdAt: "desc" },
       include: {
         customer: true,

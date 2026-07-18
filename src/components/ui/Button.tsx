@@ -15,13 +15,13 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        "bg-primary text-white rounded-pill px-6 py-3 shadow-glow hover:brightness-110 focus:ring-primary",
+        "bg-primary text-[#0a0807] rounded-sm font-bold px-6 py-3 hover:bg-[#f3ece1] hover:text-[#0a0807] transition-all",
       secondary:
-        "bg-surface-card text-white border border-glass-light rounded-pill px-6 py-3 hover:bg-surface-secondary focus:ring-primary/50",
+        "bg-[#131110] text-[#f3ece1] border border-glass rounded-sm px-6 py-3 hover:bg-[#1a1715] transition-all",
       danger:
-        "bg-danger text-white rounded-pill px-6 py-3 hover:bg-red-500 focus:ring-danger",
+        "bg-danger text-[#f3ece1] rounded-sm px-6 py-3 hover:bg-red-500 transition-all",
       ghost:
-        "text-text-sub hover:text-white hover:bg-white/5 rounded-pill px-6 py-3 focus:ring-white/20",
+        "text-text-sub hover:text-[#f3ece1] hover:bg-white/5 rounded-sm px-6 py-3",
     };
 
     const sizes = {

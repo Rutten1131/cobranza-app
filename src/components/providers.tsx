@@ -14,6 +14,7 @@ interface User {
   hasCobranzas?: boolean;
   hasHabitaciones?: boolean;
   hasBarberia?: boolean;
+  hasBarberiaPremium?: boolean;
 }
 
 export function useAuth() {

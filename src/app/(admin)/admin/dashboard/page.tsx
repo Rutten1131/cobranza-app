@@ -31,6 +31,7 @@ interface User {
   hasCobranzas: boolean;
   hasHabitaciones: boolean;
   hasBarberia: boolean;
+  hasBarberiaPremium: boolean;
   createdAt: string;
   _count: {
     records: number;
@@ -64,6 +65,7 @@ export default function AdminDashboard() {
     hasCobranzas: true,
     hasHabitaciones: false,
     hasBarberia: false,
+    hasBarberiaPremium: false,
   });
 
   const [showEditModal, setShowEditModal] = useState(false);
@@ -130,6 +132,7 @@ export default function AdminDashboard() {
         hasCobranzas: true,
         hasHabitaciones: false,
         hasBarberia: false,
+        hasBarberiaPremium: false,
       });
       fetchUsers();
     } catch {
@@ -175,6 +178,7 @@ export default function AdminDashboard() {
           hasCobranzas: editingUser.hasCobranzas,
           hasHabitaciones: editingUser.hasHabitaciones,
           hasBarberia: editingUser.hasBarberia,
+          hasBarberiaPremium: editingUser.hasBarberiaPremium,
           password: newPassword || undefined,
         }),
       });
@@ -329,10 +333,15 @@ export default function AdminDashboard() {
                         )}
                         {u.hasBarberia && (
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20">
-                            ✂️ Barbería
+                            ✂️ BarberOS Pro
                           </span>
                         )}
-                        {!u.hasCobranzas && !u.hasHabitaciones && !u.hasBarberia && (
+                        {u.hasBarberiaPremium && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                            👑 BarberOS Premium
+                          </span>
+                        )}
+                        {!u.hasCobranzas && !u.hasHabitaciones && !u.hasBarberia && !u.hasBarberiaPremium && (
                           <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-danger/10 text-danger border border-danger/20">
                             Ninguno
                           </span>
@@ -512,7 +521,16 @@ export default function AdminDashboard() {
                   onChange={(e) => setNewUser({ ...newUser, hasBarberia: e.target.checked })}
                   className="rounded border-glass text-primary focus:ring-primary w-4 h-4"
                 />
-                <span>✂️ Sistema de Barbería</span>
+                <span>✂️ BarberOS Pro</span>
+              </label>
+              <label className="flex items-center gap-2 text-small text-text-sub select-none cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={newUser.hasBarberiaPremium}
+                  onChange={(e) => setNewUser({ ...newUser, hasBarberiaPremium: e.target.checked })}
+                  className="rounded border-glass text-primary focus:ring-primary w-4 h-4"
+                />
+                <span>👑 BarberOS Premium</span>
               </label>
             </div>
           </div>
@@ -609,15 +627,24 @@ export default function AdminDashboard() {
                   />
                   <span>🏨 Sistema de Habitaciones</span>
                 </label>
-                <label className="flex items-center gap-2 text-small text-text-sub select-none cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={editingUser.hasBarberia}
-                    onChange={(e) => setEditingUser({ ...editingUser, hasBarberia: e.target.checked })}
-                    className="rounded border-glass text-primary focus:ring-primary w-4 h-4"
-                  />
-                  <span>✂️ Sistema de Barbería</span>
-                </label>
+                 <label className="flex items-center gap-2 text-small text-text-sub select-none cursor-pointer">
+                   <input
+                     type="checkbox"
+                     checked={editingUser.hasBarberia}
+                     onChange={(e) => setEditingUser({ ...editingUser, hasBarberia: e.target.checked })}
+                     className="rounded border-glass text-primary focus:ring-primary w-4 h-4"
+                   />
+                   <span>✂️ BarberOS Pro</span>
+                 </label>
+                 <label className="flex items-center gap-2 text-small text-text-sub select-none cursor-pointer">
+                   <input
+                     type="checkbox"
+                     checked={editingUser.hasBarberiaPremium}
+                     onChange={(e) => setEditingUser({ ...editingUser, hasBarberiaPremium: e.target.checked })}
+                     className="rounded border-glass text-primary focus:ring-primary w-4 h-4"
+                   />
+                   <span>👑 BarberOS Premium</span>
+                 </label>
               </div>
             </div>
 

@@ -61,7 +61,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { businessName, businessType, whatsappSender, isActive, password, hasCobranzas, hasHabitaciones, hasBarberia } = body;
+    const { businessName, businessType, whatsappSender, isActive, password, hasCobranzas, hasHabitaciones, hasBarberia, hasBarberiaPremium } = body;
 
     const updateData: { [key: string]: any } = {};
 
@@ -72,6 +72,7 @@ export async function PATCH(
     if (hasCobranzas !== undefined) updateData.hasCobranzas = Boolean(hasCobranzas);
     if (hasHabitaciones !== undefined) updateData.hasHabitaciones = Boolean(hasHabitaciones);
     if (hasBarberia !== undefined) updateData.hasBarberia = Boolean(hasBarberia);
+    if (hasBarberiaPremium !== undefined) updateData.hasBarberiaPremium = Boolean(hasBarberiaPremium);
     if (password) {
       updateData.passwordHash = await bcrypt.hash(password, 12);
     }
@@ -89,6 +90,7 @@ export async function PATCH(
         hasCobranzas: true,
         hasHabitaciones: true,
         hasBarberia: true,
+        hasBarberiaPremium: true,
       },
     });
 

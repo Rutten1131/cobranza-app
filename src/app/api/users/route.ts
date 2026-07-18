@@ -24,6 +24,7 @@ export async function GET(req: NextRequest) {
         hasCobranzas: true,
         hasHabitaciones: true,
         hasBarberia: true,
+        hasBarberiaPremium: true,
         createdAt: true,
         _count: {
           select: { records: true, clients: true },
@@ -67,6 +68,7 @@ export async function POST(req: NextRequest) {
     const hasCobranzas = body.hasCobranzas !== undefined ? Boolean(body.hasCobranzas) : true;
     const hasHabitaciones = body.hasHabitaciones !== undefined ? Boolean(body.hasHabitaciones) : false;
     const hasBarberia = body.hasBarberia !== undefined ? Boolean(body.hasBarberia) : false;
+    const hasBarberiaPremium = body.hasBarberiaPremium !== undefined ? Boolean(body.hasBarberiaPremium) : false;
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -98,6 +100,7 @@ export async function POST(req: NextRequest) {
         hasCobranzas,
         hasHabitaciones,
         hasBarberia,
+        hasBarberiaPremium,
       },
       select: {
         id: true,
@@ -109,6 +112,7 @@ export async function POST(req: NextRequest) {
         hasCobranzas: true,
         hasHabitaciones: true,
         hasBarberia: true,
+        hasBarberiaPremium: true,
         createdAt: true,
       },
     });

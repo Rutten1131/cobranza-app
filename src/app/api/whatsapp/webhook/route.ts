@@ -186,6 +186,61 @@ export async function POST(req: NextRequest) {
           await sendWhatsAppMessage(instanceName, whatsappNumber, reviewMsg);
         }
 
+        // Save as BarberReview for Premium tracking
+        await prisma.barberReview.create({
+          data: {
+            userId: barberOwner.id,
+            customerId: customer.id,
+            rating,
+          },
+        });
+
+        return NextResponse.json({ success: true });
+      }
+    }
+
+    // Sub-Flow: 2-hour cron review response
+    // If the customer received a review request and responds with 1-5
+    if (customer.reviewRequestSent) {
+      const rating = parseInt(messageText);
+      if (rating >= 1 && rating <= 5) {
+        // Save the review
+        await prisma.barberReview.create({
+          data: {
+            userId: barberOwner.id,
+            customerId: customer.id,
+            rating,
+          },
+        });
+
+        // Update the most recent cut's rating if it's null
+        const latestCut = await prisma.barberCut.findFirst({
+          where: { userId: barberOwner.id, customerId: customer.id },
+          orderBy: { createdAt: "desc" },
+        });
+        if (latestCut && latestCut.rating === null) {
+          await prisma.barberCut.update({
+            where: { id: latestCut.id },
+            data: { rating },
+          });
+        }
+
+        // Mark as reviewed
+        await prisma.barberCustomer.update({
+          where: { id: customer.id },
+          data: { reviewRequestSent: false },
+        });
+
+        let thankMsg = `¡Gracias por calificarnos con ${"⭐".repeat(rating)}! Tu opinión nos ayuda a mejorar. 💈\n\n`;
+
+        // If high rating and Google Maps URL available, ask for Google review
+        if (rating >= 4 && !customer.hasReviewed && barberOwner.barberGoogleMapsUrl) {
+          thankMsg += `🌟 Si deseas, también puedes dejarnos una reseña en Google. ¡Nos ayudaría muchísimo!\n\n👉 ${barberOwner.barberGoogleMapsUrl}`;
+        } else {
+          thankMsg += `¡Te esperamos en tu próxima visita! 😎`;
+        }
+
+        await sendWhatsAppMessage(instanceName, whatsappNumber, thankMsg);
         return NextResponse.json({ success: true });
       }
     }
